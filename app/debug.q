@@ -1,5 +1,5 @@
-qib:.Q.def[enlist[`appdir]!enlist`$"app"] .Q.opt .z.x;
-system"l ",string[qib`appdir],"/ib.q"
+.utl.require"qib/app/ib.q"
+syms:("SSSS";enlist csv)0:.Q.dd[.utl.PKGSLOADED"qib"]`app`syms.csv
 
 out"Connecting"
 .ib.connect[`$"127.0.0.1";7497;1];
@@ -16,7 +16,6 @@ subscribe:{[cont]
 	.ib.nextSubId+:1;
  };
 
-syms:("SSSS";enlist csv)0:.Q.dd[hsym qib`appdir;`syms.csv]
 
 serverVersion:{out"Server version: ",string .ib.serverVersion[]};
 currentTime:{out"Requesting current time";.ib.reqCurrentTime[]};
@@ -44,13 +43,13 @@ start:{
 	serverVersion[];
 	currentTime[];
 	TwsConnectionTime[];
-	/ reqMktData[];
-	/ reqAccountUpdates[];
-	/ reqPositions[];
-	// reqExecutions[];
+	reqMktData[];
+	reqAccountUpdates[];
+	reqPositions[];
+	reqExecutions[];
 	reqHistoricalData[];
-	/ reqAllOpenOrders[];
-	/ reqContractDetails[];
+	reqAllOpenOrders[];
+	reqContractDetails[];
  };
 
 started:0b
@@ -74,5 +73,5 @@ c:(enlist`conId)!enlist 272093
 lmtOrder:`action`totalQuantity`orderType`lmtPrice!(`BUY;1000;`LMT;0.01)
 mktOrder:`action`totalQuantity`orderType!(`BUY;1000;`MKT)
 
-.ib.placeOrder[1^.ib.nextId;first contract] lmtOrder
-.ib.reqMktData[4;cont _`conId;"";0b];
+/ .ib.placeOrder[1^.ib.nextId;first contract] lmtOrder
+/ .ib.reqMktData[4;cont _`conId;"";0b];
