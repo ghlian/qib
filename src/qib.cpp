@@ -1,566 +1,438 @@
 #include "qib.h"
-#include "config.h"
 #include "IBClient.h"
 
 IBClient *ib;
 
 __attribute__((constructor))
-ZV initialize_api() {
-    ib = new IBClient();
+ZV initialize_api()
+{
+  ib = new IBClient();
+  setm(1);
 }
 
 __attribute__((destructor))
-ZV destroy_api() {
-    if (ib) {
-        ib->disconnect();
-        delete ib;
-    }
-}
-
-K version(K ignore)
+ZV destroy_api()
 {
-    R createDictionary(std::map<std::string, K> {
-        { "release",    ks((S) BUILD_PROJECT_VERSION) },
-        { "os",         ks((S) BUILD_OPERATING_SYSTEM) },
-        { "tws",        ks((S) BUILD_TWS_VER) },
-        { "kx",         ks((S) BUILD_KX_VER) }
-    });
+  if (ib) {
+    ib->disconnect();
+    delete ib;
+  }
 }
 
 K LoadLibrary(K ignore)
 {
-    O("\n");
-    O("========= %s =========\n",       PROGRAM_NAME);
-    O("release » %-5s\n",               BUILD_PROJECT_VERSION);
-    O("os » %-5s\n",                    BUILD_OPERATING_SYSTEM);
-    O("arch » %-5s\n",                  BUILD_PROCESSOR);
-    O("git commit » %-5s\n",            BUILD_GIT_SHA1);
-    O("git datetime » %-5s\n",          BUILD_GIT_DATE);
-    O("kdb compatibility » %s.x\n",     BUILD_KX_VER);
-    O("compiler flags »%-5s\n",         BUILD_COMPILER_FLAGS);
-    O("\n");
-
-    auto dict = createDictionary(std::map<std::string, K> {
-        { "version",                dl((V*) version,            1) },
-        // EPosixClientSocket
-        { "connect",                dl((V*) connect_,            3) },
-        { "disconnect",             dl((V*) disconnect,         1) },
-        { "isConnected",            dl((V*) isConnected,        1) },
-        // EClientSocketBase
-        { "calculateImpliedVolatility", dl((V*) calculateImpliedVolatility, 1) },
-        { "cancelAccountSummary",   dl((V*) cancelAccountSummary, 1) },
-        { "cancelCalculateImpliedVolatility", dl((V*) cancelCalculateImpliedVolatility, 1) },
-        { "cancelCalculateOptionPrice", dl((V*) cancelCalculateOptionPrice, 1) },
-        { "cancelFundamentalData",  dl((V*) cancelFundamentalData, 1) },
-        { "cancelHistoricalData",   dl((V*) cancelHistoricalData, 1) },
-        { "cancelMktData",          dl((V*) cancelMktData,      1) },
-        { "cancelMktDepth",         dl((V*) cancelMktDepth,     1) },
-        { "cancelNewsBulletins",    dl((V*) cancelNewsBulletins,1) },
-        { "cancelOrder",            dl((V*) cancelOrder,        1) },
-        { "cancelPositions",        dl((V*) cancelPositions,    1) },
-        { "cancelRealTimeBars",     dl((V*) cancelRealTimeBars, 1) },
-        { "checkMessages",          dl((V*) checkMessages,      1) },
-        { "exerciseOptions",        dl((V*) exerciseOptions,    6) },
-        { "placeOrder",             dl((V*) placeOrder,         3) },
-        { "queryDisplayGroups",     dl((V*) queryDisplayGroups, 1) },
-        { "replaceFA",              dl((V*) replaceFA,          1) },
-        { "reqAccountSummary",      dl((V*) reqAccountSummary,  3) },
-        { "reqAccountUpdates",      dl((V*) reqAccountUpdates,  2) },
-        { "reqAllOpenOrders",       dl((V*) reqAllOpenOrders,   1) },
-        { "reqAutoOpenOrders",      dl((V*) reqAutoOpenOrders,  1) },
-        { "reqContractDetails",     dl((V*) reqContractDetails, 2) },
-        { "reqCurrentTime",         dl((V*) reqCurrentTime,     1) },
-        { "reqExecutions",          dl((V*) reqExecutions,      2) },
-        { "reqFundamentalData",     dl((V*) reqFundamentalData, 3) },
-        { "reqGlobalCancel",        dl((V*) reqGlobalCancel,    1) },
-        { "reqHistoricalData",      dl((V*) reqHistoricalData,  7) },
-        { "reqIds",                 dl((V*) reqIds,             1) },
-        { "reqManagedAccts",        dl((V*) reqManagedAccts,    1) },
-        { "reqMarketDataType",      dl((V*) reqMarketDataType,  1) },
-        { "reqMktData",             dl((V*) reqMktData,         4) },
-        { "reqMktDepth",            dl((V*) reqMktDepth,        4) },
-        { "reqNewsBulletins",       dl((V*) reqNewsBulletins,   1) },
-        { "reqOpenOrders",          dl((V*) reqOpenOrders,      1) },
-        { "reqPositions",           dl((V*) reqPositions,       1) },
-        { "reqRealTimeBars",        dl((V*) reqRealTimeBars,    6) },
-        { "reqScannerParameters",   dl((V*) reqScannerParameters, 1) },
-        { "reqScannerSubscription", dl((V*) reqScannerSubscription, 3) },
-        { "requestFA",              dl((V*) requestFA,          1) },
-        { "serverVersion",          dl((V*) serverVersion,      1) },
-        { "setServerLogLevel",      dl((V*) setServerLogLevel,  1) },
-        { "subscribeToGroupEvents", dl((V*) subscribeToGroupEvents, 2) },
-        { "TwsConnectionTime",      dl((V*) TwsConnectionTime,  1) },
-        { "unsubscribeFromGroupEvents", dl((V*) unsubscribeFromGroupEvents, 1) },
-        { "updateDisplayGroup",     dl((V*) updateDisplayGroup, 2) },
-        { "verifyMessage",          dl((V*) verifyMessage,      1) },
-        { "verifyRequest",          dl((V*) verifyRequest,      1) }
+  auto dict = createDictionary(std::map<std::string, K> {
+      { "connect",             dl((V*) connect_,             3) },
+      { "disconnect",          dl((V*) disconnect,           1) },
+      { "onReceive",           dl((V*) onReceive,            1) },
+      { "isConnected",         dl((V*) isConnected,          1) },
+      { "serverVersion",       dl((V*) serverVersion,        1) },
+      { "TwsConnectionTime",   dl((V*) TwsConnectionTime,    1) },
+      { "setServerLogLevel",   dl((V*) setServerLogLevel,    1) },
+      { "reqIds",              dl((V*) reqIds,               1) },
+      { "reqCurrentTime",      dl((V*) reqCurrentTime,       1) },
+      { "reqContractDetails",  dl((V*) reqContractDetails,   2) },
+      { "reqMatchingSymbols",  dl((V*) reqMatchingSymbols,   2) },
+      { "reqSmartComponents",  dl((V*) reqSmartComponents,   2) },
+      { "reqMarketRule",       dl((V*) reqMarketRule,        1) },
+      { "reqMarketDataType",   dl((V*) reqMarketDataType,    1) },
+      { "reqMktData",          dl((V*) reqMktData,           5) },
+      { "cancelMktData",       dl((V*) cancelMktData,        1) },
+      { "reqTickByTickData",   dl((V*) reqTickByTickData,    5) },
+      { "cancelTickByTickData",dl((V*) cancelTickByTickData, 1) },
+      { "reqRealTimeBars",     dl((V*) reqRealTimeBars,      6) },
+      { "cancelRealTimeBars",  dl((V*) cancelRealTimeBars,   1) },
+      { "reqHeadTimestamp",    dl((V*) reqHeadTimestamp,     4) },
+      { "cancelHeadTimestamp", dl((V*) cancelHeadTimestamp,  1) },
+      { "reqHistoricalTicks",  dl((V*) reqHistoricalTicks,   8) },
+      { "reqHistoricalData",   dl((V*) reqHistoricalData,    8) },
+      { "cancelHistoricalData",dl((V*) cancelHistoricalData, 1) },
+      { "reqHistogramData",    dl((V*) reqHistogramData,     4) },
+      { "cancelHistogramData", dl((V*) cancelHistogramData,  1) },
+      { "reqMktDepth",         dl((V*) reqMktDepth,          5) },
+      { "cancelMktDepth",      dl((V*) cancelMktDepth,       2) },
+      { "reqMktDepthExchanges",dl((V*) reqMktDepthExchanges, 1) },
+      { "reqFundamentalData",  dl((V*) reqFundamentalData,   4) },
+      { "cancelFundamentalData",dl((V*) cancelFundamentalData, 1)},
+      { "reqScannerParameters", dl((V*) reqScannerParameters, 1) },
+      { "reqScannerSubscription",dl((V*) reqScannerSubscription, 4) },
+      { "cancelScannerSubscription",dl((V*) cancelScannerSubscription, 1) },
+      { "reqManagedAccts",     dl((V*) reqManagedAccts,      1) },
+      { "reqAccountSummary"  , dl((V*) reqAccountSummary,    3) },
+      { "cancelAccountSummary",dl((V*) cancelAccountSummary, 1) },
+      { "reqAccountUpdates",   dl((V*) reqAccountUpdates,    2) },
+      { "reqAccountUpdatesMulti",dl((V*) reqAccountUpdatesMulti,    4) },
+      { "cancelAccountUpdatesMulti",dl((V*) cancelAccountUpdatesMulti,1) },
+      { "reqPositions",        dl((V*) reqPositions,         1) },
+      { "cancelPositions",     dl((V*) cancelPositions,      1) },
+      { "reqPositionsMulti",   dl((V*) reqPositionsMulti,    3) },
+      { "cancelPositionsMulti",dl((V*) cancelPositionsMulti, 1) },
+      { "reqPnL",              dl((V*) reqPnL,               3) },
+      { "cancelPnL",           dl((V*) cancelPnL,            1) },
+      { "reqPnLSingle",        dl((V*) reqPnLSingle,         4) },
+      { "cancelPnLSingle",     dl((V*) cancelPnLSingle,      1) }
     });
-    R dict;
+  R dict;
 }
 
-K eventLoop(I fd)
-{
-    ib->onReceive();
-    R (K)0;
-}
+K eventLoop(I fd) {ib->onReceive();R (K)0;}
+K onReceive(K ignore) {ib->onReceive();R (K)0;}
 
-///////////////////////
-// EPosixClientSocket
-///////////////////////
-
-K connect_(K host, K port, K clientId)
-{
-    Q(host->t != -KS || port->t != -KJ || clientId->t != -KJ, "type");
-    
-    if (!ib->isConnected()) {
-        ib->connect(host->s, port->j, clientId->j);
-        if (ib->isConnected())
-            sd1(ib->fd(), eventLoop);
+K connect_(K host, K port, K clientId) {
+  Q(host->t != -KS || port->t != -KJ, "type");
+  if (!ib->isConnected()) {
+    ib->connect(host->s, port->j, clientId->i);
+    if (ib->isConnected()){
+      sd1(ib->fd(), eventLoop);
+      ib->startReader();
+      // ib->onReceive();
     }
-    
-    R kb(ib->isConnected());
-}
+  }
+  R kb(ib->isConnected());}
 
-K disconnect(K ignore)
-{
-    ib->disconnect();
-    R (K)0;
-}
+K disconnect(K ignore) {
+  ib->disconnect();
+  R (K)0;}
 
-K isConnected(K ignore)
-{
-    R kb(ib->isConnected());
-}
-
-///////////////////////
-// EClient
-///////////////////////
-
-K calculateImpliedVolatility(K reqId, K contract, K optionPrice, K underPrice)
-{
-    R (K)0;
-}
-
-K calculateOptionPrice( K reqId, K contract, K volatility, K underPrice)
-{
-    R (K)0;
-}
-
-K cancelAccountSummary(K reqId)
-{
-    Q(reqId->t != -KJ, "type");
-    ib->cancelAccountSummary(reqId->j);
-    R (K)0;
-}
-
-K cancelCalculateImpliedVolatility(K reqId)
-{
-    Q(reqId->t != -KJ, "type");
-    ib->cancelCalculateImpliedVolatility(reqId->j);
-    R (K)0;
-}
-
-K cancelCalculateOptionPrice(K reqId)
-{
-    Q(reqId->t != -KJ, "type");
-    ib->cancelCalculateOptionPrice(reqId->j);
-    R (K)0;
-}
-
-K cancelFundamentalData(K reqId)
-{
-    Q(reqId->t != -KJ, "type");
-    ib->cancelFundamentalData(reqId->j);
-    R (K)0;
-}
-
-K cancelHistoricalData(K tickerId)
-{
-    Q(tickerId->t != -KJ, "type");
-    ib->cancelHistoricalData(tickerId->j);
-    R (K)0;
-}
-
+K isConnected(K ignore){R kb(ib->isConnected());}
+K serverVersion(K ignore){R ki(ib->serverVersion());}
+K TwsConnectionTime(K ignore){R kip(ib->TwsConnectionTime());}
+K setServerLogLevel(K level){
+  Q(level->t != -KJ, "type");
+  ib->setServerLogLevel(level->j);
+  R (K)0;}
+K reqIds(K numIds){
+  Q(numIds->t != -KJ, "type");
+  ib->reqIds(numIds->j);
+  R (K)0;}
+K reqCurrentTime(K ignore) {ib->reqCurrentTime();R (K)0;}
+K reqContractDetails(K reqId, K contract) {
+  Q(reqId->t != -KJ || contract->t != XD, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqContractDetails(reqId->j, c);
+  R (K)0;}
+K reqMatchingSymbols(K reqId, K pattern){
+  Q(reqId->t != -KJ || pattern->t != KC , "type");
+  ib->reqMatchingSymbols(reqId->j,getString(pattern));
+  R (K)0;}
+K reqSmartComponents(K reqId,K exchange){
+  Q(reqId->t != -KJ || exchange->t != KC, "type");
+  ib->reqSmartComponents(reqId->j, getString(exchange));
+  R (K)0;}
+K reqMarketRule(K ruleId) {
+  Q(ruleId->t != -KJ, "type");
+  ib->reqMarketRule(ruleId->j);
+  R (K)0;}
+K reqMarketDataType(K marketDataType) {
+  Q(marketDataType->t != -KJ, "type");
+  ib->reqMarketDataType(marketDataType->j);
+  R (K)0;}
+K reqMktData(K tickerId,
+             K contract,
+             K genericTicks,
+             K snapsnot,
+             K regSnapshot){
+  Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapsnot->t != -KB || regSnapshot->t != -KB, "type");
+  Q(!ib->isConnected(), "connection");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  TagValueListSPtr tag;
+  // TODO: genericTicks translation
+  ib->reqMktData(tickerId->j, c, "", static_cast<I>(snapsnot->g),
+                 static_cast<I>(regSnapshot->g),
+                 tag);
+  R (K)0;}
 K cancelMktData(K id) {
-    Q(id->t != -KJ, "type");
-    ib->cancelMktData(id->j);
-    R (K)0;
-}
-
-K cancelMktDepth(K tickerId)
-{
-    Q(tickerId->t != -KJ, "type");
-    ib->cancelMktData(tickerId->j);
-    R (K)0;
-}
-
-K cancelNewsBulletins(K ignore)
-{
-    ib->cancelNewsBulletins();
-    R (K)0;
-}
-
-K cancelOrder(K id)
-{
-    Q(id->t != -KJ, "type");
-    Q(!ib->isConnected(), "connection");
-    ib->cancelOrder(id->j);
-    R (K)0;
-}
-
-K cancelPositions(K ignore)
-{
-    ib->cancelPositions();
-    R (K)0;
-}
-
-K cancelRealTimeBars(K tickerId)
-{
-    Q(tickerId->t != -KJ, "type");
-    ib->cancelRealTimeBars(tickerId->j);
-    R (K)0;
-}
-
-K cancelScannerSubscription(K tickerId)
-{
-    Q(tickerId->t != -KJ, "type");
-    ib->cancelScannerSubscription(tickerId->j);
-    R (K)0;
-}
-
-K checkMessages(K ignore)
-{
-    ib->checkMessages();
-    R (K)0;
-}
-
-K exerciseOptions(K tickerId, K contract, K exerciseAction, K exerciseQuantity, K account, K override)
-{
-    Q(tickerId->t != -KJ || contract->t != XD || exerciseAction->t != -KJ ||
-      exerciseQuantity->t != -KJ || account->t != -KS || override->t != -KB, "type");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->exerciseOptions(tickerId->j,
+  Q(id->t != -KJ, "type");
+  ib->cancelMktData(id->j);
+  R (K)0;}
+K reqTickByTickData(K id,
+                    K contract,
+                    K tickType,
+                    K nticks,
+                    K ignoreSize){
+  Q(id->t != -KJ || contract->t != XD ||
+    tickType->t != -KS || nticks->t != -KJ ||
+    ignoreSize->t != -KB, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqTickByTickData(id->j,
                         c,
-                        exerciseAction->j,
-                        exerciseQuantity->j,
-                        account->s,
-                        static_cast<I>(override->g));
-    
-    R (K)0;
-}
+                        tickType->s,
+                        nticks->j,
+                        static_cast<bool>(ignoreSize->g));
+  R (K)0;}
+K cancelTickByTickData(K id){
+  Q(id->t != -KJ, "type");
+  ib->cancelTickByTickData(id->j);
+  R (K)0;}
 
-K placeOrder(K id, K contract, K order)
-{
-    Q(id->t != -KJ || contract->t != XD || order->t != XD, "type");
-    Q(!ib->isConnected(), "connection");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    auto o = createOrder(order, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->placeOrder(id->j, c, o);
-    R (K)0;
-}
-
-K queryDisplayGroups(K reqId)
-{
-    Q(reqId->t != -KJ, "type");
-    ib->queryDisplayGroups(reqId->j);
-    R (K)0;
-}
-
-K replaceFA(K pFaDataType, K cxml)
-{
-    Q(pFaDataType->t != -KJ || cxml->t != KC, "type");
-    Q(pFaDataType->j < 1 || pFaDataType->j > 3, "pFaDataType");
-    
-//    auto datatype = static_cast<faDataType>(pFaDataType->j);
-//    auto xml = static_cast<IBString>(cxml->g);
-//    ib->replaceFA(datatype, xml);
-    
-    R krr((S)"nyi");
-}
-
-K reqAccountSummary(K reqId, K groupName, K tags)
-{
-    Q(reqId->t != -KJ || groupName->t != KC || tags->t != KC, "type");
-    R krr((S)"nyi");
-}
-
-K reqAccountUpdates(K subscribe, K acctCode)
-{
-    Q(subscribe->t != -KB || acctCode->t != -KS, "type");
-    Q(!ib->isConnected(), "connection");
-    ib->reqAccountUpdates(static_cast<I>(subscribe->g), acctCode->s);
-    R (K)0;
-}
-
-K reqAllOpenOrders(K ignore)
-{
-    ib->reqAllOpenOrders();
-    R (K)0;
-}
-
-K reqAutoOpenOrders(K bAutoBind)
-{
-    Q(bAutoBind->t != -KB, "type");
-    ib->reqAutoOpenOrders(static_cast<I>(bAutoBind->g));
-    R (K)0;
-}
-
-K reqContractDetails(K reqId, K contract)
-{
-    Q(reqId->t != -KJ || contract->t != XD, "type");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->reqContractDetails(reqId->j, c);
-    R (K)0;
-}
-
-K reqCurrentTime(K ignore)
-{
-    ib->reqCurrentTime();
-    R (K)0;
-}
-
-K reqExecutions(K reqId, K filter)
-{
-    Q(reqId->t != -KJ || filter->t != XD, "type");
-    
-    std::string error;
-    auto ef = createExecutionFilter(filter, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->reqExecutions(reqId->j, ef);
-    R (K)0;
-}
-
-K reqFundamentalData(K reqId, K contract, K reportType)
-{
-    Q(reqId->t != -KJ || contract->t != XD || reportType->t != -KS, "type");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->reqFundamentalData(reqId->j, c, reportType->s);
-    R (K)0;
-}
-
-K reqGlobalCancel(K ignore)
-{
-    ib->reqGlobalCancel();
-    R (K)0;
-}
-
-K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH)
-{
-    Q(id->t != -KJ || contract->t != XD || endDateTime->t != -KZ || durationStr->t != KC || barSizeSetting->t != KC ||
-      whatToShow->t != KC || useRTH->t != -KB, "type");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    TagValueListSPtr chartOptions;
-    ib->reqHistoricalData(id->j,
-                          c,
-                          formatTime("%Y%m%d %H:%M:%S", ((endDateTime->f) + 10957)*8.64e4, 0),
-                          getString(durationStr),
-                          getString(barSizeSetting),
-                          getString(whatToShow),
-                          static_cast<I>(useRTH->g),
-                          2,
-                          chartOptions);
-    R (K)0;
-}
-
-K reqIds(K numIds)
-{
-    Q(numIds->t != -KJ, "type");
-    ib->reqIds(numIds->j);
-    R (K)0;
-}
-
-K reqManagedAccts(K ignore)
-{
-    ib->reqManagedAccts();
-    R (K)0;
-}
-
-K reqMarketDataType(K marketDataType)
-{
-    Q(marketDataType->t != -KJ, "type");
-    ib->reqMarketDataType(marketDataType->j);
-    R (K)0;
-}
-
-K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
-{
-    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapsnot->t != -KB, "type");
-    Q(!ib->isConnected(), "connection");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    TagValueListSPtr tag;
-    ib->reqMktData(tickerId->j, c, "", static_cast<I>(snapsnot->g), tag);
-    
-    R (K)0;
-}
-
-K reqMktDepth(K tickerId, K contract, K numRows, K mktDepthOptions)
-{
-    Q(tickerId->t != -KJ || contract->t != XD || numRows->t != -KJ || mktDepthOptions->t != XD, "type");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    auto tvl = createTagValueList(mktDepthOptions, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->reqMktDepth(tickerId->j, c, numRows->j, tvl);
-    R (K)0;
-}
-
-K reqNewsBulletins(K allMsgs)
-{
-    Q(allMsgs->t != -KB, "type");
-    ib->reqNewsBulletins(static_cast<I>(allMsgs->g));
-    R (K)0;
-}
-
-K reqOpenOrders(K ignore)
-{
-    ib->reqOpenOrders();
-    R (K)0;
-}
-
-K reqPositions(K ignore)
-{
-    ib->reqPositions();
-    R (K)0;
-}
-
-K reqRealTimeBars(K id, K contract, K barSize, K whatToShow, K useRTH, K realTimeBarsOptions)
-{
-    Q(id->t != -KJ || contract->t != XD || barSize->t != -KJ || whatToShow->t != -KS ||
-      useRTH->t != -KB || realTimeBarsOptions->t != XD, "type");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    auto tvl = createTagValueList(realTimeBarsOptions, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->reqRealTimeBars(id->j,
+K reqRealTimeBars(K id,
+                  K contract,
+                  K barSize,
+                  K whatToShow,
+                  K useRTH,
+                  K realTimeBarsOptions) {
+  Q(id->t != -KJ || contract->t != XD || barSize->t != -KJ ||
+    whatToShow->t != -KS || useRTH->t != -KB ||
+    realTimeBarsOptions->t != XD, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  auto tvl = createTagValueList(realTimeBarsOptions, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqRealTimeBars(id->j,
+                      c,
+                      barSize->j,
+                      whatToShow->s,
+                      static_cast<I>(useRTH->g),
+                      tvl);
+  R (K)0;}
+K cancelRealTimeBars(K tickerId) {
+  Q(tickerId->t != -KJ, "type");
+  ib->cancelRealTimeBars(tickerId->j);
+  R (K)0;}
+K reqHeadTimestamp(K id,
+                   K contract,
+                   K whatToShow,
+                   K useRTH){
+  Q(id->t != -KJ || contract->t != XD || whatToShow->t != -KS ||
+    useRTH->t != -KB, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqHeadTimestamp(id->j,
+                       c,
+                       whatToShow->s,
+                       static_cast<I>(useRTH->g),
+                       2);
+  R (K)0;}
+K cancelHeadTimestamp(K id) {
+  Q(id->t != -KJ, "type");
+  ib->cancelRealTimeBars(id->j);
+  R (K)0;}
+K reqHistoricalTicks(K id,
+                     K contract,
+                     K time,
+                     K lowerUpper,
+                     K nticks,
+                     K whatToShow,
+                     K useRTH,
+                     K ignoreSize){
+  // Q(id->t != -KJ || contract->t != XD || start->t != -KP ||
+  //   end->t != -KP || nticks->t != -KJ || whatToShow->t != -KS ||
+  //   useRTH->t != -KB || ignoreSize->t != -KB || options->t != XD, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  std::string from = static_cast<bool>(lowerUpper->g) ?
+    "" : formatTime("%Y%m%d %H:%M:%S", up(time->j),0);
+  std::string to = static_cast<bool>(lowerUpper->g) ?
+    formatTime("%Y%m%d %H:%M:%S", up(time->j),0) : "";
+  ib->reqHistoricalTicks(id->j,
+                         c,
+                         from,
+                         to,
+                         nticks->j,
+                         whatToShow->s,
+                         static_cast<I>(useRTH->g),
+                         static_cast<bool>(ignoreSize->g),
+                         TagValueListSPtr());
+  R (K)0;}
+K reqHistoricalData(K id,
+                    K contract,
+                    K endDateTime,
+                    K durationStr,
+                    K barSizeSetting,
+                    K whatToShow,
+                    K useRTH,
+                    // K formatDate,
+                    K keepUpToDate){
+  Q(id->t != -KJ || contract->t != XD || endDateTime->t != -KP ||
+    durationStr->t != KC || barSizeSetting->t != KC ||
+    whatToShow->t != -KS || useRTH->t != -KB ||
+    keepUpToDate->t != -KB, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  TagValueListSPtr chartOptions;
+  int upd = static_cast<I>(keepUpToDate->g);
+  const std::string end = upd ?
+    "" : formatTime("%Y%m%d %H:%M:%S GMT",up(endDateTime->j),0);
+  ib->reqHistoricalData(id->j,
                         c,
-                        barSize->j,
+                        end,
+                        getString(durationStr),
+                        getString(barSizeSetting),
                         whatToShow->s,
                         static_cast<I>(useRTH->g),
-                        tvl);
-    
-    R (K)0;
-}
+                        2,
+                        upd,
+                        chartOptions);
+  R (K)0;}
+K cancelHistoricalData(K tickerId){
+  Q(tickerId->t != -KJ, "type");
+  ib->cancelHistoricalData(tickerId->j);
+  R (K)0;}
+K reqHistogramData(K reqId,
+                   K contract,
+                   K useRTH,
+                   K timePeriod){
+  Q(reqId->t != -KJ || contract->t != XD ||
+    useRTH->t != -KB || timePeriod->t != KC, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqHistogramData(reqId->j,
+                       c,
+                       static_cast<I>(useRTH->g),
+                       getString(timePeriod));
+  R (K)0;}
+K cancelHistogramData(K reqId){
+  Q(reqId->t != -KJ, "type");
+  ib->cancelHistogramData(reqId->j);
+  R (K)0;}
+K reqMktDepth(K reqId,
+              K contract,
+              K numRows,
+              K isSmartDepth,
+              K mktDepthOptions){
+  Q(reqId->t != -KJ || contract->t != XD ||
+    numRows->t != -KJ || isSmartDepth->t != -KB ||
+    mktDepthOptions->t != XD, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  auto tvl = createTagValueList(mktDepthOptions, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqMktDepth(reqId->j,
+                  c,
+                  numRows->j,
+                  static_cast<I>(isSmartDepth->g),
+                  tvl);
+  R (K)0;}
+K cancelMktDepth(K reqId, K isSmartDepth){
+  Q(reqId->t != -KJ || isSmartDepth->t != -KB, "type");
+  ib->cancelMktDepth(reqId->j,static_cast<I>(isSmartDepth->g));
+  R (K)0;}
+K reqMktDepthExchanges(K ignore){ib->reqMktDepthExchanges();R (K)0;}
+K reqFundamentalData(K reqId,
+                     K contract,
+                     K reportType,
+                     K options) {
+  Q(reqId->t != -KJ || contract->t != XD || reportType->t != -KS ||
+     options->t != XD, "type");
+  std::string error;
+  auto c = createContract(contract, error);
+  Q(!error.empty(), error.c_str());
+  auto tvl = createTagValueList(options, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqFundamentalData(reqId->j,
+                         c,
+                         reportType->s,
+                         tvl);
+  R (K)0;}
+K cancelFundamentalData(K reqId) {
+  Q(reqId->t != -KJ, "type");
+  ib->cancelFundamentalData(reqId->j);
+  R (K)0;}
+K reqScannerParameters(K ignore){ib->reqScannerParameters(); R (K)0;}
+K reqScannerSubscription(K reqId,
+                         K subscription,
+                         K opts,
+                         K filter){
+  Q(reqId->t != -KJ || subscription->t != XD ||
+    opts->t != XD, "type");
+  std::string error;
+  auto ss = createScannerSubscription(subscription, error);
+  Q(!error.empty(), error.c_str());
+  auto tvopts = createTagValueList(opts, error);
+  Q(!error.empty(), error.c_str());
+  auto tvfilter = createTagValueList(filter, error);
+  Q(!error.empty(), error.c_str());
+  ib->reqScannerSubscription(reqId->j, ss, tvopts, tvfilter);
+  R (K)0;}
+K cancelScannerSubscription(K reqId){
+  Q(reqId->t != -KJ, "type");
+  ib->cancelScannerSubscription(reqId->j);
+  R (K)0;}
+K reqManagedAccts(K ignore) {ib->reqManagedAccts();R (K)0;}
+K reqAccountSummary(K reqId, K groupName, K tags) {
+  // TODO: reqAccountSummary not yet implemented
+  Q(reqId->t != -KJ || groupName->t != KC || tags->t != KC, "type");
+  R krr((S)"nyi");}
+K cancelAccountSummary(K reqId) {
+  Q(reqId->t != -KJ, "type");
+  ib->cancelAccountSummary(reqId->j);
+  R (K)0;}
+K reqAccountUpdates(K subscribe, K acctCode) {
+  Q(subscribe->t != -KB || acctCode->t != -KS, "type");
+  Q(!ib->isConnected(), "connection");
+  ib->reqAccountUpdates(static_cast<I>(subscribe->g), acctCode->s);
+  R (K)0;}
+K reqAccountUpdatesMulti(K reqId, K account, K modelCode, K ledgerAndNLV){
+  Q(reqId->t != -KJ || account->t != -KS || modelCode->t != -KS || ledgerAndNLV->t != -KB, "type");
+  Q(!ib->isConnected(), "connection");
+  ib->reqAccountUpdatesMulti(reqId->j,
+                             account->s,
+                             modelCode->s,
+                             static_cast<I>(ledgerAndNLV->g));
+  R (K)0;}
+K cancelAccountUpdatesMulti(K reqId) {
+  Q(reqId->t != -KJ, "type");
+  ib->cancelAccountUpdatesMulti(reqId->j);
+  R (K)0;}
+K reqPositions(K ignore) { ib->reqPositions(); R (K)0; }
+K cancelPositions(K ignore){ib->cancelPositions();R (K)0;}
+K reqPositionsMulti(K reqId, K account, K modelCode){
+  Q(reqId->t != -KJ || account->t != -KS || modelCode->t != -KS, "type");
+  Q(!ib->isConnected(), "connection");
+  ib->reqPositionsMulti(reqId->j, account->s, modelCode->s);
+  R (K)0;}
+K cancelPositionsMulti(K reqId) {
+  Q(reqId->t != -KJ, "type");
+  ib->cancelAccountUpdatesMulti(reqId->j);
+  R (K)0;}
+K reqPnL(K reqId, K account, K modelCode){
+  Q(reqId->t != -KJ || account->t != -KS || modelCode->t != -KS, "type");
+  Q(!ib->isConnected(), "connection");
+  ib->reqPnL(reqId->j, account->s, modelCode->s);
+  R (K)0;}
+K cancelPnL(K reqId){
+  Q(reqId->t != -KJ, "type");
+  ib->cancelPnL(reqId->j);
+  R (K)0;}
+K reqPnLSingle(K reqId, K account, K modelCode, K conId){
+  Q(reqId->t != -KJ || account->t != -KS || modelCode->t != -KS || conId->t != -KJ, "type");
+  Q(!ib->isConnected(), "connection");
+  ib->reqPnLSingle(reqId->j, account->s, modelCode->s, conId->j);
+  R (K)0;};
+K cancelPnLSingle(K reqId){
+  Q(reqId->t != -KJ, "type");
+  ib->cancelPnLSingle(reqId->j);
+  R (K)0;}
+////////////////////////////////////////////////////////
 
-K reqScannerParameters(K ignore)
+
+template<class F, class V>
+auto partial(F&&f, V&&v)
 {
-    ib->reqScannerParameters();
-    R (K)0;
+  return
+    [f=std::forward<F>(f), v=std::forward<V>(v)](auto&&... args)
+    {
+      return f(v, decltype(args)(args)...);
+    };
 }
 
-K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOptions)
+template<class F, class A0, class...Args>
+auto partial(F&&f, A0&&a0, Args&&...args)
 {
-    Q(tickerId->t != -KJ || subscription->t != XD || scannerSubscriptionOptions->t != XD, "type");
-    
-    std::string error;
-    auto ss = createScannerSubscription(subscription, error);
-    Q(!error.empty(), error.c_str());
-    
-    auto tvl = createTagValueList(scannerSubscriptionOptions, error);
-    Q(!error.empty(), error.c_str());
-
-    ib->reqScannerSubscription(tickerId->j, ss, tvl);
-    R (K)0;
+  return partial(partial(std::forward<F>(f), std::forward<A0>(a0)), std::forward<Args>(args)...);
 }
-
-K requestFA(K pFaDataType)
-{
-    Q(pFaDataType->t != -KS, "type");
-    Q(pFaDataType->j < 1 || pFaDataType->j > 3, "unknown faDataType");
-    
-    ib->requestFA(static_cast<faDataType>(pFaDataType->j));
-    R (K)0;
-}
-
-K serverVersion(K ignore)
-{
-    R ki(ib->serverVersion());
-}
-
-K setServerLogLevel(K level)
-{
-    Q(level->t != -KJ, "type");
-    ib->setServerLogLevel(level->j);
-    R (K)0;
-}
-
-K subscribeToGroupEvents(K reqId, K groupId)
-{
-    Q(reqId->t != -KJ || groupId->t != -KJ, "type");
-    ib->subscribeToGroupEvents(reqId->j, groupId->j);
-    R (K)0;
-}
-
-K TwsConnectionTime(K ignore)
-{
-    R kip(ib->TwsConnectionTime());
-}
-
-K unsubscribeFromGroupEvents(K reqId)
-{
-    Q(reqId->t != -KJ, "type");
-    ib->unsubscribeFromGroupEvents(reqId->j);
-    R (K)0;
-}
-
-K updateDisplayGroup(K reqId, K contractInfo)
-{
-    Q(reqId->t != -KJ || contractInfo->t != KC, "type");
-    ib->updateDisplayGroup(reqId->j, contractInfo->s); // TODO: Validate string extraction
-    R (K)0;
-}
-
-K verifyMessage(K apiData)
-{
-    Q(apiData->t != KC, "type");
-    ib->verifyMessage(apiData->s);
-    R (K)0;
-}
-
-K verifyRequest(K apiName, K apiVersion)
-{
-    Q(apiName->t != -KS || apiVersion->t != KC, "type");
-    ib->verifyRequest(apiName->s, apiVersion->s); // TODO: Validate string extraction
-    R (K)0;
-}
-
-////////////////////
-// Static methods
-////////////////////
 
 template<typename T> std::string typeError(T *property, G expectedType)
 {
@@ -607,7 +479,7 @@ template<> V setAtom(double *property, K x, G type, std::string &error)
     }
 }
 
-template<> V setAtom(IBString *property, K x, G type, std::string &error)
+template<> V setAtom(std::string *property, K x, G type, std::string &error)
 {
     SW(xt) {
         CS(-KS, *property = x->s);                                                          // symbol
@@ -646,7 +518,7 @@ V setProperty(T &property, I expectedType, K x, I index, std::string &error)
         error = stringFormat("Invalid type: %i. Expected %i", xt0, expectedType);
         R;
     }
-    
+
     if (xt < 0) setAtom(property, x, expectedType, error);
     else if ((0 <= xt) && (xt < 20)) setList(property, expectedType, x, index, error);
     else {
@@ -659,16 +531,16 @@ V setProperties(K dict, std::map<std::string, std::function<V(K x, I i, std::str
 {
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
-    
+
     if (keys->t != KS) {
         error = "Keys must be syms";
         R;
     }
-    
+
     std::string key;
     for (I i = 0; i < keys->n; i++) {
         key = kS(keys)[i];
-        
+
         auto it = props.find(key);
         if (it != props.end()) {
             (it->second)(vals, i, error);
@@ -687,14 +559,30 @@ auto f = [](auto property, I expectedType, K x, I index, std::string &error) {
     R setProperty(property, expectedType, x, index, error);
 };
 
-Z Contract createContract(K dict, std::string &error)
-{
+Z TagValueListSPtr createTagValueList(K dict, std::string &error){
+  TagValueListSPtr list;
+  if (dict->t != XD) {error = "type"; R list;}
+  K keys = kK(dict)[0];
+  K vals = kK(dict)[1];
+  if (keys->n > 0 && keys->t != KS) {
+    error = "Keys must be syms";
+    R list;}
+  for (I i = 0; i < keys->n; i++) {
+    TagValueSPtr tagValue(new TagValue());
+    tagValue->tag = kS(keys)[i];
+    partial(f, &tagValue->value, KC)(vals, i, error);
+    if (!error.empty()) R list;
+    list->push_back(tagValue);
+  }
+  R list;}
+
+Z Contract createContract(K dict, std::string &error){
     Contract c;
     auto map = new std::map<std::string, std::function<V(K, I, std::string&)>> {
         { "conId",          partial(f, &c.conId,        -KJ) },
         { "currency",       partial(f, &c.currency,     -KS) },
         { "exchange",       partial(f, &c.exchange,     -KS) },
-        { "expiry",         partial(f, &c.expiry,       -KM) },
+        { "lastTradeDateOrContractMonth", partial(f, &c.lastTradeDateOrContractMonth,       -KM) },
         { "includeExpired", partial(f, &c.includeExpired, -KB) },
         { "localSymbol",    partial(f, &c.localSymbol,  -KS) },
         { "multiplier",     partial(f, &c.multiplier,   -KS) },
@@ -708,79 +596,7 @@ Z Contract createContract(K dict, std::string &error)
     };
     setProperties(dict, *map, error);
     if (!error.empty()) error = "createContract: " + error;
-    R c;
-}
-
-Z Order createOrder(K dict, std::string &error)
-{
-    Order o;
-    auto map = new std::map<std::string, std::function<V(K, I, std::string&)>> {
-        // Order Identifiers
-        { "clientId",       partial(f, &o.clientId,     -KJ) },
-        { "orderId",        partial(f, &o.orderId,      -KJ) },
-        { "permId",         partial(f, &o.permId,       -KJ) },
-        // Main Order Fields
-        { "action",         partial(f, &o.action,       -KS) },
-        { "auxPrice",       partial(f, &o.auxPrice,     -KF) },
-        { "lmtPrice",       partial(f, &o.lmtPrice,     -KF) },
-        { "orderType",      partial(f, &o.orderType,    -KS) },
-        { "totalQuantity",  partial(f, &o.totalQuantity, -KJ) },
-        // Extended Order Fields
-        { "allOrNone",      partial(f, &o.allOrNone,    -KB) },
-        { "blockOrder",     partial(f, &o.blockOrder,   -KB) },
-        { "displaySize",    partial(f, &o.displaySize,  -KI) },
-        { "goodAfterTime",  partial(f, &o.goodAfterTime, -KZ) },
-        { "goodTillDate",   partial(f, &o.goodTillDate, -KZ) },
-        { "hidden",         partial(f, &o.hidden,       -KB) },
-        { "minQty",         partial(f, &o.minQty,       -KI) },
-        { "ocaGroup",       partial(f, &o.ocaGroup,     -KS) },
-        { "orderRef",       partial(f, &o.orderRef,     -KS) },
-        { "outsideRth",     partial(f, &o.outsideRth,   -KB) },
-        { "overridePercentageConstraints", partial(f, &o.overridePercentageConstraints, -KB) },
-        { "parentId",       partial(f, &o.parentId,     -KJ) },
-        { "percentOffset",  partial(f, &o.percentOffset,-KF) },
-        { "rule80A",        partial(f, &o.rule80A,      -KS) },
-        { "tif",            partial(f, &o.tif,          -KS) },
-        { "sweepToFill",    partial(f, &o.sweepToFill,  -KB) },
-        { "trailingPercent",partial(f, &o.trailingPercent, -KF) },
-        { "trailingStopPrice", partial(f, &o.trailStopPrice, -KF) },
-        { "transmit",       partial(f, &o.transmit,     -KB) },
-        { "triggerMethod",  partial(f, &o.triggerMethod,-KI) },
-        { "activeStartTime",partial(f, &o.activeStartTime, -KZ) },
-        { "activeStopTime", partial(f, &o.activeStopTime, -KZ) },
-        // Financial Advisor Fields
-        { "designatedLocation", partial(f, &o.designatedLocation, -KS) },
-        { "openClose",      partial(f, &o.openClose,    -KS) },
-        { "origin",         partial(f, &o.origin,       -KI) },
-        { "shortSaleSlot",  partial(f, &o.shortSaleSlot, -KI) },
-        // SMART Routing Only
-        { "discretionaryAmt", partial(f, &o.discretionaryAmt, -KF) },
-        { "eTradeOnly",     partial(f, &o.eTradeOnly,   -KB) },
-        { "firmQuoteOnly",  partial(f, &o.firmQuoteOnly,-KB) },
-        { "nbboPriceCap",   partial(f, &o.nbboPriceCap, -KF) },
-        { "optOutSmartRouting", partial(f, &o.optOutSmartRouting, -KB) }
-    };
-    setProperties(dict, *map, error);
-    if (!error.empty()) error = "createOrder: " + error;
-    R o;
-}
-
-Z ExecutionFilter createExecutionFilter(K dict, std::string &error)
-{
-    ExecutionFilter ef;
-    auto map = new std::map<std::string, std::function<V(K, I, std::string&)>> {
-        { "clientId",   partial(f, &ef.m_clientId,     -KJ) },
-        { "acctCode",   partial(f, &ef.m_acctCode,     -KS) },
-        { "time",       partial(f, &ef.m_time,         -KZ) },
-        { "symbol",     partial(f, &ef.m_symbol,       -KS) },
-        { "secType",    partial(f, &ef.m_secType,      -KS) },
-        { "exchange",   partial(f, &ef.m_exchange,     -KS) },
-        { "side",       partial(f, &ef.m_side,         -KS) }
-    };
-    setProperties(dict, *map, error);
-    if (!error.empty()) error = "createExecutionFilter: " + error;
-    R ef;
-}
+    R c;}
 
 Z ScannerSubscription createScannerSubscription(K dict, std::string &error)
 {
@@ -807,37 +623,8 @@ Z ScannerSubscription createScannerSubscription(K dict, std::string &error)
         { "excludeConvertible",     partial(f, &ss.excludeConvertible,  -KB) },
         { "scannerSettingPairs",    partial(f, &ss.scannerSettingPairs,  KC) },
         { "stockTypeFilter",        partial(f, &ss.stockTypeFilter,      KC) }
-        
     };
     setProperties(dict, *map, error);
     if (!error.empty()) error = "createScannerSubscription: " + error;
     R ss;
-}
-
-Z TagValueListSPtr createTagValueList(K dict, std::string &error)
-{
-    TagValueListSPtr list;
-    if (dict->t != XD) {
-        error = "type";
-        R list;
-    }
-    
-    K keys = kK(dict)[0];
-    K vals = kK(dict)[1];
-    
-    if (keys->n > 0 && keys->t != KS) {
-        error = "Keys must be syms";
-        R list;
-    }
-    
-    for (I i = 0; i < keys->n; i++) {
-        TagValueSPtr tagValue(new TagValue());
-        tagValue->tag = kS(keys)[i];
-        partial(f, &tagValue->value, KC)(vals, i, error);
-        
-        if (!error.empty()) R list;
-        list->push_back(tagValue);
-    }
-    
-    R list;
 }

@@ -1,0 +1,6 @@
+S,S,S,S
+symbol,secType,exchange,currency
+IBM,CFD,SMART,USD
+IBDE30,CFD,SMART,EUR
+BMW,CFD,SMART,EUR
+EUR,CFD,SMART,USD

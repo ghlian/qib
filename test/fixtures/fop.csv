@@ -1,0 +1,3 @@
+S,S,S,S,D,F,S,S
+symbol,secType,exchange,currency,lastTradeDateOrContractMonth,strike,right,multiplier
+ES,FOP,GLOBEX,USD,20180316,2800,C,50
