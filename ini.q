@@ -2,7 +2,7 @@
 .utl.require"qutil/opts.q"
 .utl.require"qutil/config_parse.q"
 
-.utl.addArg["S";".ini";0;                          / [initfile] cmdline arg
+.utl.addArg["S";`.ini;0;                          / [initfile] cmdline arg
   (`x;{.utl.parseConfig hsym x})]
 .utl.addArg["*";"";0;                              / [section] cmdline arg: selects section of file or first section
   {.[`x;();@;] $[count x;x;first key get `x]}]
