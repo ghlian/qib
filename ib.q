@@ -11,7 +11,7 @@ u.oe:{u.o string[x],":",u.fmt y}
 ///////////////  End of Utilities  ////////
 
 
-.ib,:(`:./bin/qib.0.0.2 2:(`LoadLibrary;1))`       / requests
+.ib,:(hsym[x.so] 2:(`LoadLibrary;1))`              / requests
 .ib.cb:()!();                                      / callbacks function!code
 
 \d .ib

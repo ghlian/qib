@@ -1,6 +1,0 @@
-[paper]
-port: 4002
-
-[DEFAULT]
-host: 127.0.0.1
-# load: callbacks.q   # e.g. additional load-time configuration

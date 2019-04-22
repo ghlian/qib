@@ -1,15 +1,14 @@
 \l test/fixtures/timer.q
 \l test/fixtures/ty.q
-\l tree.q
+\l test/fixtures/tree.q
 
 paperCfg:{
   .tst.mock[`.utl.arg.posArgs;()];
   .tst.mock[`.utl.arg.boolOpts;()];
   .tst.mock[`.utl.arg.regOpts;()];
   .tst.mock[`.utl.arg.regDefOpts;()];
-  .tst.mock[`.utl.arg.args ; (
-    "--cfg";".qib";"--profile";"paper")];
-  system"l cfg.q";
+  .tst.mock[`.utl.arg.args ; (".ini";"paper")];
+  system"l ini.q";
   }
 
 mockCallbacks:{
@@ -62,16 +61,15 @@ mockCallbacks[];
   before {
     };
   should["support configuration from file"]{
-    Cfg.host mustmatch `127.0.0.1;
-    Cfg.port mustmatch 4002;
-    Cfg.profile mustmatch `paper;
+    x.host mustmatch `127.0.0.1;
+    x.port mustmatch 4002;
     };
   should["start disconnected"]{
     0b musteq .ib.isConnected[];
     };
   should["connect and disconnect successfully"]{
     must[;"connect"]
-      .ib.connect[ Cfg.host;Cfg.port;1i];
+      .ib.connect[x.host;x.port;1i];
     mustReturn[`connectAck];
     .ib.isConnected[] must "show connected status";
     -14 -19 -11h mustmatch type each
@@ -127,7 +125,7 @@ mockCallbacks[];
     mustReturn[`symbolSamples];
     };
   should["get exchange source of the quote"]{
-    .ib.reqSmartComponents[1;"a6"];
+    .ib.reqSmartComponents[1;"a6"];                / only testable when exchange is open
     mustReturn[`smartComponents];
     };
   should["request bond details"]{
