@@ -99,7 +99,9 @@ symbolSamples:(!) . flip (
   (`rid;7h);
   (`cid;7h);
   (`sym;11h);
+  (`syml;11h);                                     / symbol local to the exchange; unused?
   (`sty;11h);
+  (`ex;11h);                                       / destination exchange; unused?
   (`ex0;11h);
   (`ccy;11h);
   (`dty;0h))                                       / derivative security types

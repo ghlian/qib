@@ -302,9 +302,11 @@ void IBClient::marketRule(int marketRuleId,
 void IBClient::symbolSamples(int reqId,
                              const std::vector<ContractDescription> &contractDescriptions) {
   int n=contractDescriptions.size();
-  K x=knk(7,
+  K x=knk(9,
           ktn(KJ,n),
           ktn(KJ,n),
+          ktn(KS,n),
+          ktn(KS,n),
           ktn(KS,n),
           ktn(KS,n),
           ktn(KS,n),
@@ -314,13 +316,15 @@ void IBClient::symbolSamples(int reqId,
      kJ(kK(x)[0])[i]=reqId;
      kJ(kK(x)[1])[i]=contractDescriptions[i].contract.conId;
      kS(kK(x)[2])[i]=ss((S)contractDescriptions[i].contract.symbol.c_str());
-     kS(kK(x)[3])[i]=ss((S)contractDescriptions[i].contract.secType.c_str());
-     kS(kK(x)[4])[i]=ss((S)contractDescriptions[i].contract.primaryExchange.c_str());
-     kS(kK(x)[5])[i]=ss((S)contractDescriptions[i].contract.currency.c_str());
+     kS(kK(x)[3])[i]=ss((S)contractDescriptions[i].contract.localSymbol.c_str());
+     kS(kK(x)[4])[i]=ss((S)contractDescriptions[i].contract.secType.c_str());
+     kS(kK(x)[5])[i]=ss((S)contractDescriptions[i].contract.exchange.c_str());
+     kS(kK(x)[6])[i]=ss((S)contractDescriptions[i].contract.primaryExchange.c_str());
+     kS(kK(x)[7])[i]=ss((S)contractDescriptions[i].contract.currency.c_str());
      int _j = contractDescriptions[i].derivativeSecTypes.size();
-     kK(kK(x)[6])[i]= ktn(KS,_j);
+     kK(kK(x)[8])[i]= ktn(KS,_j);
      for (unsigned int j = 0; j < _j; j++) {
-       kS(kK(kK(x)[6])[i])[j] = ss((S)contractDescriptions[i].derivativeSecTypes[j].c_str());
+       kS(kK(kK(x)[8])[i])[j] = ss((S)contractDescriptions[i].derivativeSecTypes[j].c_str());
      };
      );
   receiveData("symbolSamples",x);
