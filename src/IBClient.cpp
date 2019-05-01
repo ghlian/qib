@@ -884,18 +884,19 @@ K IBClient::convertContract(const Contract &contract){
 }
 
 K IBClient::convertContract2(const Contract &contract){
-  R knk(14,
+  R knk(15,
         kj(contract.conId),
+        kis(contract.localSymbol) ,
+        kis(contract.exchange) ,
+        kis(contract.primaryExchange) ,
+        kis(contract.currency) ,
         kis(contract.symbol) ,
         kis(contract.secType) ,
+        kis(contract.tradingClass) ,
         kip(contract.lastTradeDateOrContractMonth ) ,
         kf(contract.strike) ,
         kis(contract.right) ,
         kip(contract.multiplier) ,
-        kis(contract.exchange) ,
-        kis(contract.primaryExchange) ,
-        kis(contract.localSymbol) ,
-        kis(contract.tradingClass) ,
         kb(contract.includeExpired) ,
         kis(contract.secIdType) ,
         kis(contract.secId));

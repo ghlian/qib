@@ -6,16 +6,17 @@ what:`TRADES`MIDPOINT`BID`ASK`BID_ASK,
 
 contract:(!) . flip (
   (`cid;-7h);
+  (`syml;-11h);
+  (`ex;-11h);                                      / exchange destination
+  (`ex0;-11h);                                     / exchange primary
+  (`ccy;-11h);
   (`sym;-11h);
   (`sty;-11h);                                     / security type
+  (`class;-11h);
   (`dlast;10h);                                    / last trade date or contract month
   (`strike;-9h);
   (`right;-11h);
   (`mult;10h);
-  (`ex;-11h);                                      / exchange destination
-  (`ex0;-11h);                                     / exchange primary
-  (`syml;-11h);
-  (`class;-11h);
   (`iexp;-1h);                                     / include expired
   (`sidty;-11h);
   (`sid;-11h))
@@ -83,7 +84,7 @@ currentTime:-12h
 nextValidId:-7h
 managedAccounts:10h
 .ty.system:error:warning:(!). flip (
-  (`id;-7h);
+  (`rid;-7h);
   (`code;-7h);
   (`msg;10h))
 winError:(!). flip ((`msg;10h);(`code;-7h))
