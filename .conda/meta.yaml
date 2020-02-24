@@ -1,0 +1,18 @@
+package:
+  name: qib
+  version: 0.0.1
+
+build:
+  number: 1
+
+source:
+  - url: https://github.com/danielkrizian/QInteractiveBrokers/archive/master.zip
+    folder: src
+  - path: ./
+    folder: src
+
+requirements:
+  build:
+    - {{compiler('gxx')}}
+  run:
+    - qutil
