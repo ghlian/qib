@@ -8,6 +8,7 @@
 #include "Execution.h"
 #include "ScannerSubscription.h"
 #include <functional>
+#include <iostream>
 
 extern "C"
 {

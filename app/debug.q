@@ -1,8 +1,11 @@
 qib:.Q.def[enlist[`appdir]!enlist`$"app"] .Q.opt .z.x;
+/ qib: appdir| /home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/app
 system"l ",string[qib`appdir],"/ib.q"
 
 out"Connecting"
-.ib.connect[`$"127.0.0.1";7497;1];
+// 4002 is the ibGateWay paper trading port
+// 4001 is the ibGateWay live trading port
+.ib.connect[`$"127.0.0.1";4001;1];  
 $[.ib.isConnected[]; out"Connected"; [out"Connection failed";exit 1]]
 
 .ib.nextSubId:1
@@ -15,6 +18,26 @@ subscribe:{[cont]
 	.ib.reqMktData[cont`id;cont _`id;"";0b];
 	.ib.nextSubId+:1;
  };
+
+test:{
+	cont: syms 1;
+		/ below is for stock
+			/ symbol  | IBM
+			/ secType | STK
+			/ exchange| SMART
+			/ currency| USD
+
+		/ VIX-20200722-USD-FUT
+		vixCon: `symbol`secType`exchange`currency`expiry!`VIX`FUT`CFE`USD,"i"$20210317;
+		vixCon: `symbol`secType`exchange`currency`expiry!`VIX`FUT`CFE`USD, 2021.03;
+
+		cont: vixCon
+	.ib.version[]
+	.ib.LoadLibrary[]
+
+
+ }
+
 
 syms:("SSSS";enlist csv)0:.Q.dd[hsym qib`appdir;`syms.csv]
 
@@ -32,8 +55,8 @@ reqHistoricalData:{
 	// void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString &barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr &chartOptions)
 	tickerId:1;
 	contract:`symbol`secType`exchange`currency!(`IBM;`STK;`SMART;`USD);
-	endDateTime:"z"$2017.01.01;
-	durationStr:"1 D";
+	endDateTime:"z"$2020.12.01;
+	durationStr:"10 D";
 	barSizeSetting:"1 day";
 	whatToShow:"MIDPOINT";
 	useRTH:1b;
@@ -76,3 +99,14 @@ mktOrder:`action`totalQuantity`orderType!(`BUY;1000;`MKT)
 
 .ib.placeOrder[1^.ib.nextId;first contract] lmtOrder
 .ib.reqMktData[4;cont _`conId;"";0b];
+
+
+
+serverVersion[]
+currentTime[]
+TwsConnectionTime[]
+reqAccountUpdates[]
+reqPositions[]
+reqAllOpenOrders[]
+reqContractDetails[]
+reqHistoricalData[]

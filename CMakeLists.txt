@@ -9,7 +9,8 @@ set (KX_VER         "3")
 set (TWS_VER        "9.71.01")
 set (BINARY_NAME	"${PROGRAM_NAME}.${PROGRAM_VER}")
 
-option (BUILD_x64   "build a 64-bit binary instead of 32-bit"               OFF)
+option (BUILD_x64   "build a 64-bit binary instead of 32-bit" ON)
+# option (BUILD_x64   "build a 64-bit binary instead of 32-bit"               OFF)
 option (BUILD_DEBUG "build debug versions of the binaries with symbols"     ON)
 
 project (${BINARY_NAME} CXX C)
@@ -19,7 +20,7 @@ set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 file (GLOB_RECURSE QIB_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
-add_library (${BINARY_NAME} SHARED ${QIB_SRC})
+add_library (${BINARY_NAME} SHARED ${QIB_SRC} )
 
 include_directories ("${CMAKE_BINARY_DIR}/include"
 	"${CMAKE_SOURCE_DIR}/third_party/kx"

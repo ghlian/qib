@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="main_test}"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="main_test">
+				<Option output="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/main_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DKXVER=3"/>
+					<Add option="-DIB_USE_STD_STRING"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../src"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../bin/include"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../third_party/kx"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../third_party/ib/IBJts/source/PosixClient/Shared"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../third_party/ib/IBJts/source/PosixClient/src"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 main_test"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="main_test/fast">
+				<Option output="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/main_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DKXVER=3"/>
+					<Add option="-DIB_USE_STD_STRING"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../src"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../bin/include"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../third_party/kx"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../third_party/ib/IBJts/source/PosixClient/Shared"/>
+					<Add directory="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/../third_party/ib/IBJts/source/PosixClient/src"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 main_test/fast"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/main_test.cpp">
+			<Option target="main_test"/>
+		</Unit>
+		<Unit filename="/home/ghlian/CODE_LIAN/code_kdb/QInteractiveBrokers/test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

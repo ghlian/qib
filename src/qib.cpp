@@ -415,6 +415,8 @@ K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
     Q(!error.empty(), error.c_str());
     
     TagValueListSPtr tag;
+
+    std::cout<<"Running the reqMktData in qib. "<< std::endl;
     ib->reqMktData(tickerId->j, c, "", static_cast<I>(snapsnot->g), tag);
     
     R (K)0;
@@ -708,6 +710,7 @@ Z Contract createContract(K dict, std::string &error)
     };
     setProperties(dict, *map, error);
     if (!error.empty()) error = "createContract: " + error;
+    if(!error.empty())  std::cout<< "Created the contract with error: " << error <<std::endl;
     R c;
 }
 
