@@ -13,3 +13,4 @@ third_party/ib/IBJts/source/JavaClient
 *.xcodeproj
 *.build
 *.DS_Store
+cmake-build-debug/

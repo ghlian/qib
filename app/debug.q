@@ -29,13 +29,11 @@ test:{
 
 		/ VIX-20200722-USD-FUT
 		vixCon: `symbol`secType`exchange`currency`expiry!`VIX`FUT`CFE`USD,"i"$20210317;
-		vixCon: `symbol`secType`exchange`currency`expiry!`VIX`FUT`CFE`USD, 2021.03;
-
+		vixCon: `symbol`secType`exchange`currency`expiry`tradingClass!`VIX`FUT`CFE`USD, (`month$ 2021.01.20), `VX
 		cont: vixCon
 	.ib.version[]
 	.ib.LoadLibrary[]
-
-
+ 
  }
 
 
