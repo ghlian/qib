@@ -1,16 +1,24 @@
 #include "IBClient.h"
 
-#include "EPosixClientSocket.cpp"
+//#include "EPosixClientSocket.cpp"
 #include "EPosixClientSocketPlatform.h"
-#include "EClientSocketBaseImpl.h"
+//#include "EClientSocketBaseImpl.h"
 #include "helpers.h"
+
 
 /////////////////////////////////////////////
 //// Public functions
 /////////////////////////////////////////////
 
 IBClient::IBClient()
-    : socket(new EPosixClientSocket(this))
+//    : socket(new EPosixClientSocket(this))
+      m_osSignal(2000)//2-seconds timeout
+    , m_pClient(new EClientSocket(this, &m_osSignal))
+	, m_state(ST_CONNECT)
+	, m_sleepDeadline(0)
+	, m_orderId(0)
+    , m_pReader(0)
+    , m_extraAuth(false)
 {
 }
 
@@ -283,15 +291,15 @@ K IBClient::convertCommissionReport(const CommissionReport &report)
     R dict;
 }
 
-K IBClient::convertUnderComp(const UnderComp &comp)
-{
-    auto dict = createDictionary(std::map<std::string, K> {
-        { "conId",  kj(comp.conId) },
-        { "delta",  kf(comp.delta) },
-        { "price",  kf(comp.price) }
-    });
-    R dict;
-}
+//K IBClient::convertUnderComp(const UnderComp &comp)
+//{
+//    auto dict = createDictionary(std::map<std::string, K> {
+//        { "conId",  kj(comp.conId) },
+//        { "delta",  kf(comp.delta) },
+//        { "price",  kf(comp.price) }
+//    });
+//    R dict;
+//}
 
 K IBClient::convertOrderState(const OrderState &orderState)
 {
@@ -871,11 +879,11 @@ void IBClient::managedAccounts(const IBString &accountsList)
     receiveData("managedAccounts", kip(accountsList));
 }
 
-void IBClient::deltaNeutralValidation(int reqId, const UnderComp &underComp)
-{
-    K dict = convertUnderComp(underComp);
-    receiveData("deltaNeutralValidation", knk(2, ki(reqId), dict));
-}
+//void IBClient::deltaNeutralValidation(int reqId, const UnderComp &underComp)
+//{
+//    K dict = convertUnderComp(underComp);
+//    receiveData("deltaNeutralValidation", knk(2, ki(reqId), dict));
+//}
 
 void IBClient::scannerDataEnd(int reqId)
 {
