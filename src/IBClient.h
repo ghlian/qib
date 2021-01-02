@@ -121,11 +121,12 @@ public:
     void onReceive();
 
 private:
-    std::unique_ptr<EclientSocket> socket;
+    //    std::unique_ptr<EclientSocket> socket;
+	EClientSocket * const socket;
 
     //! [socket_declare]
     EReaderOSSignal m_osSignal;
-	EClientSocket * const m_pClient;
+    //	EClientSocket * const m_pClient;
 	//! [socket_declare]
 	State m_state;
 	time_t m_sleepDeadline;

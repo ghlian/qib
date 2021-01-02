@@ -696,7 +696,7 @@ Z Contract createContract(K dict, std::string &error)
         { "conId",          partial(f, &c.conId,        -KJ) },
         { "currency",       partial(f, &c.currency,     -KS) },
         { "exchange",       partial(f, &c.exchange,     -KS) },
-        { "expiry",         partial(f, &c.expiry,       -KM) },
+        { "expiry",         partial(f, &c.lastTradeDateOrContractMonth, -KM) },
         { "includeExpired", partial(f, &c.includeExpired, -KB) },
         { "localSymbol",    partial(f, &c.localSymbol,  -KS) },
         { "multiplier",     partial(f, &c.multiplier,   -KS) },
