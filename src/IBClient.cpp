@@ -300,6 +300,16 @@ K IBClient::convertCommissionReport(const CommissionReport &report) {
     R dict;
 }
 
+
+K IBClient::convertTickAttrib(const TickAttrib &tickAttrib) {
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"canAutoExecute",  kb(tickAttrib.canAutoExecute)},
+            {"pastLimit",            kb(tickAttrib.pastLimit)},
+            {"preOpen",              kb(tickAttrib.preOpen)},
+    });
+    R dict;
+}
+
 //K IBClient::convertUnderComp(const UnderComp &comp)
 //{
 //    auto dict = createDictionary(std::map<std::string, K> {
@@ -586,8 +596,11 @@ void IBClient::nextValidId(OrderId orderId) {
 }
 
 void IBClient::tickPrice(TickerId tickerId, TickType field, double price, int canAutoExecute) {
-
     receiveData("tickPrice", knk(4, kj(tickerId), ki(field), kf(price), kb(canAutoExecute)));
+}
+
+void IBClient::tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attrib){
+    receiveData("tickPrice", knk(4, kj(tickerId), ki(field), kf(price), convertTickAttrib(attrib)));
 }
 
 void IBClient::tickSize(TickerId tickerId, TickType field, int size) {
@@ -636,9 +649,9 @@ void IBClient::tickEFP(TickerId tickerId, TickType tickType, double basisPoints,
     });
     receiveData("tickEFP", dict);
 }
-
-void IBClient::orderStatus(OrderId orderId, const IBString &status, int filled, int remaining, double avgFillPrice,
-                           int permId, int parentId, double lastFillPrice, int clientId, const IBString &whyHeld) {
+void IBClient::orderStatus( OrderId orderId, const std::string& status, double filled,
+	double remaining, double avgFillPrice, int permId, int parentId,
+	double lastFillPrice, int clientId, const std::string& whyHeld, double mktCapPrice){
     auto dict = createDictionary(std::map<std::string, K>{
             {"orderId",         kj(orderId)},
             {"status",  kis(status)},
@@ -653,6 +666,7 @@ void IBClient::orderStatus(OrderId orderId, const IBString &status, int filled, 
     });
     receiveData("orderStatus", dict);
 }
+
 
 void IBClient::connectionClosed() {
     receiveData("connectionClosed", identity());

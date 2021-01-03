@@ -154,7 +154,7 @@ private:
     K convertExecution(const Execution &execution);
 
     K convertCommissionReport(const CommissionReport &report);
-
+    K convertTickAttrib(const TickAttrib &tickAttrib);
 //    K convertUnderComp(const UnderComp &comp);
     K convertOrderState(const OrderState &orderState);
 
@@ -320,9 +320,9 @@ public:
 
     void openOrderEnd();
 
-    void
-    orderStatus(OrderId orderId, const IBString &status, int filled, int remaining, double avgFillPrice, int permId,
-                int parentId, double lastFillPrice, int clientId, const IBString &whyHeld);
+    void orderStatus(OrderId orderId, const std::string& status, double filled,
+	double remaining, double avgFillPrice, int permId, int parentId,
+	double lastFillPrice, int clientId, const std::string& whyHeld, double mktCapPrice);
 
     void position(const IBString &account, const Contract &contract, int position, double avgCost);
 
@@ -379,6 +379,8 @@ public:
     void winError(const IBString &str, int lastError);
 
     void tickPrice(TickerId tickerId, TickType field, double price, int canAutoExecute);
+    virtual void tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attrib) ;
+
 
 //public:
 //    // events
