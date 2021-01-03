@@ -265,7 +265,7 @@ public:
 	int serverVersion();
 	std::string TwsConnectionTime();
 	void reqMktData(TickerId id, const Contract& contract,
-		const std::string& genericTicks, bool snapshot, bool regulatorySnaphsot, const TagValueListSPtr& mktDataOptions);
+                    const std::string& genericTicks, bool snapshot, bool regulatorySnapshot, const TagValueListSPtr& mktDataOptions);
 	void cancelMktData(TickerId id);
 	void placeOrder(OrderId id, const Contract& contract, const Order& order);
 	void cancelOrder(OrderId id) ;

@@ -363,10 +363,10 @@ K reqGlobalCancel(K ignore)
     R (K)0;
 }
 
-K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH)
+K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH, K keepUpToDate)
 {
     Q(id->t != -KJ || contract->t != XD || endDateTime->t != -KZ || durationStr->t != KC || barSizeSetting->t != KC ||
-      whatToShow->t != KC || useRTH->t != -KB, "type");
+      whatToShow->t != KC || useRTH->t != -KB || keepUpToDate->t != -KB, "type");
     
     std::string error;
     auto c = createContract(contract, error);
@@ -381,6 +381,7 @@ K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSet
                           getString(whatToShow),
                           static_cast<I>(useRTH->g),
                           2,
+                          (useRTH->g),
                           chartOptions);
     R (K)0;
 }
@@ -405,9 +406,9 @@ K reqMarketDataType(K marketDataType)
     R (K)0;
 }
 
-K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
+K reqMktData(K tickerId, K contract, K genericTicks, K snapshot, K regulatorySnapshot )
 {
-    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapsnot->t != -KB, "type");
+    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapshot->t != -KB || regulatorySnapshot->t != -KB, "type");
     Q(!ib->isConnected(), "connection");
     
     std::string error;
@@ -417,14 +418,14 @@ K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
     TagValueListSPtr tag;
 
     std::cout<<"Running the reqMktData in qib. "<< std::endl;
-    ib->reqMktData(tickerId->j, c, "", static_cast<I>(snapsnot->g), tag);
+    ib->reqMktData(tickerId->j, c, "", static_cast<I>(snapshot->g), static_cast<I>(regulatorySnapshot->g),  tag);
     
     R (K)0;
 }
 
-K reqMktDepth(K tickerId, K contract, K numRows, K mktDepthOptions)
+K reqMktDepth(K tickerId, K contract, K numRows, K isSmartDepth, K mktDepthOptions)
 {
-    Q(tickerId->t != -KJ || contract->t != XD || numRows->t != -KJ || mktDepthOptions->t != XD, "type");
+    Q(tickerId->t != -KJ || contract->t != XD || numRows->t != -KJ || isSmartDepth->t != -KB || mktDepthOptions->t != XD, "type");
     
     std::string error;
     auto c = createContract(contract, error);
@@ -433,7 +434,7 @@ K reqMktDepth(K tickerId, K contract, K numRows, K mktDepthOptions)
     auto tvl = createTagValueList(mktDepthOptions, error);
     Q(!error.empty(), error.c_str());
     
-    ib->reqMktDepth(tickerId->j, c, numRows->j, tvl);
+    ib->reqMktDepth(tickerId->j, c, numRows->j, static_cast<I>(isSmartDepth->g), tvl);
     R (K)0;
 }
 
@@ -484,9 +485,9 @@ K reqScannerParameters(K ignore)
     R (K)0;
 }
 
-K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOptions)
+K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOptions, K scannerSubscriptionFilterOptions)
 {
-    Q(tickerId->t != -KJ || subscription->t != XD || scannerSubscriptionOptions->t != XD, "type");
+    Q(tickerId->t != -KJ || subscription->t != XD || scannerSubscriptionOptions->t != XD || scannerSubscriptionFilterOptions->t != XD, "type");
     
     std::string error;
     auto ss = createScannerSubscription(subscription, error);
@@ -495,7 +496,10 @@ K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOption
     auto tvl = createTagValueList(scannerSubscriptionOptions, error);
     Q(!error.empty(), error.c_str());
 
-    ib->reqScannerSubscription(tickerId->j, ss, tvl);
+    auto tvl_scannerSubscriptionFilterOptions = createTagValueList(scannerSubscriptionFilterOptions, error);
+    Q(!error.empty(), error.c_str());
+
+    ib->reqScannerSubscription(tickerId->j, ss, tvl, tvl_scannerSubscriptionFilterOptions);
     R (K)0;
 }
 

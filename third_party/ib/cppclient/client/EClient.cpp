@@ -203,7 +203,7 @@ int EClient::bufferedSend(const std::string& msg) {
 }
 
 void EClient::reqMktData(TickerId tickerId, const Contract& contract,
-                         const std::string& genericTicks, bool snapshot, bool regulatorySnaphsot, const TagValueListSPtr& mktDataOptions)
+                         const std::string& genericTicks, bool snapshot, bool regulatorySnapshot, const TagValueListSPtr& mktDataOptions)
 {
     // not connected?
     if( !isConnected()) {
@@ -308,7 +308,7 @@ void EClient::reqMktData(TickerId tickerId, const Contract& contract,
     ENCODE_FIELD( snapshot); // srv v35 and above
 
     if (m_serverVersion >= MIN_SERVER_VER_REQ_SMART_COMPONENTS) {
-        ENCODE_FIELD(regulatorySnaphsot);
+        ENCODE_FIELD(regulatorySnapshot);
     }
 
     // send mktDataOptions parameter

@@ -1,10 +1,12 @@
+#include <iomanip>
 #include "IBClient.h"
 
 //#include "EPosixClientSocket.cpp"
 #include "EPosixClientSocketPlatform.h"
 //#include "EClientSocketBaseImpl.h"
 #include "helpers.h"
-
+#include "CommissionReport.h"
+#include "OrderState.h"
 
 /////////////////////////////////////////////
 //// Public functions
@@ -216,7 +218,7 @@ K IBClient::convertContract(const Contract &contract) {
 
 K IBClient::convertContractDetails(const ContractDetails &contract) {
     auto dict = createDictionary(std::map<std::string, K>{
-            {"summary",        convertContract(contract.summary)},
+            {"summary",        convertContract(contract.contract)},
             {"marketName",     kip(contract.marketName)},
             {"minTick",        kf(contract.minTick)},
             {"orderTypes",     kip(contract.orderTypes)},
@@ -311,10 +313,16 @@ K IBClient::convertCommissionReport(const CommissionReport &report) {
 K IBClient::convertOrderState(const OrderState &orderState) {
     auto dict = createDictionary(std::map<std::string, K>{
             {"commission",    kf(orderState.commission)},
-            {"commissionCurrency", kis(orderState.commissionCurrency)},
-            {"equityWithLoan",     kip(orderState.equityWithLoan)},
-            {"initMargin",         kip(orderState.initMargin)},
-            {"maintMargin",        kip(orderState.maintMargin)},
+            {"commissionCurrency",      kis(orderState.commissionCurrency)},
+            {"equityWithLoanBefore",    kip(orderState.equityWithLoanBefore)},
+            {"equityWithLoanAfter",         kip(orderState.equityWithLoanAfter)},
+            {"equityWithLoanChange",        kip(orderState.equityWithLoanChange)},
+            {"initMarginBefore",        kip(orderState.initMarginBefore)},
+            {"initMarginAfter",    kip(orderState.initMarginAfter)},
+            {"initMarginChange",   kip(orderState.initMarginChange)},
+            {"maintMarginBefore",  kip(orderState.maintMarginBefore)},
+            {"maintMarginAfter",   kip(orderState.maintMarginAfter)},
+            {"maintMarginChange",  kip(orderState.maintMarginChange)},
             {"maxCommission", kf(orderState.maxCommission)},
             {"minCommission", kf(orderState.minCommission)},
             {"status",             kis(orderState.status)},
@@ -342,11 +350,13 @@ int IBClient::serverVersion() {
 
 void
 IBClient::calculateImpliedVolatility(TickerId reqId, const Contract &contract, double optionPrice, double underPrice) {
-    socket->calculateImpliedVolatility(reqId, contract, optionPrice, underPrice);
+    std::shared_ptr<TagValueList> miscOptions(nullptr);         //reserved for future use, must be blank in EClient.h
+    socket->calculateImpliedVolatility(reqId, contract, optionPrice, underPrice, miscOptions);
 }
 
 void IBClient::calculateOptionPrice(TickerId reqId, const Contract &contract, double volatility, double underPrice) {
-    socket->calculateOptionPrice(reqId, contract, volatility, underPrice);
+    std::shared_ptr<TagValueList> miscOptions(nullptr);         //reserved for future use, must be blank in EClient.h
+    socket->calculateOptionPrice(reqId, contract, volatility, underPrice, miscOptions);
 }
 
 void IBClient::cancelAccountSummary(int reqId) {
@@ -373,8 +383,8 @@ void IBClient::cancelMktData(TickerId id) {
     socket->cancelMktData(id);
 }
 
-void IBClient::cancelMktDepth(TickerId tickerId) {
-    socket->cancelMktDepth(tickerId);
+void IBClient::cancelMktDepth(TickerId tickerId, bool isSmartDepth) {
+    socket->cancelMktDepth(tickerId, isSmartDepth);
 }
 
 void IBClient::cancelNewsBulletins() {
@@ -443,7 +453,8 @@ void IBClient::reqExecutions(int reqId, const ExecutionFilter &filter) {
 }
 
 void IBClient::reqFundamentalData(TickerId reqId, const Contract &contract, const IBString &reportType) {
-    socket->reqFundamentalData(reqId, contract, reportType);
+    const TagValueListSPtr fundamentalDataOptions(nullptr); // reserved for future use, must be blank
+    socket->reqFundamentalData(reqId, contract, reportType, fundamentalDataOptions);
 }
 
 void IBClient::reqGlobalCancel() {
@@ -452,9 +463,9 @@ void IBClient::reqGlobalCancel() {
 
 void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime,
                                  const IBString &durationStr, const IBString &barSizeSetting,
-                                 const IBString &whatToShow, int useRTH, int formatDate,
+                                 const IBString &whatToShow, int useRTH, int formatDate, bool keepUpToDate,
                                  const TagValueListSPtr &chartOptions) {
-    socket->reqHistoricalData(id, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate,
+    socket->reqHistoricalData(id, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate, keepUpToDate,
                               chartOptions);
 }
 
@@ -470,14 +481,14 @@ void IBClient::reqMarketDataType(int marketDataType) {
     socket->reqMarketDataType(marketDataType);
 }
 
-void IBClient::reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot,
+void IBClient::reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot, bool regulatorySnaphsot,
                           const TagValueListSPtr &mktDataOptions) {
-    socket->reqMktData(id, contract, genericTicks, snapshot, mktDataOptions);
+    socket->reqMktData(id, contract, genericTicks, snapshot, regulatorySnaphsot, mktDataOptions);
 }
 
-void IBClient::reqMktDepth(TickerId tickerId, const Contract &contract, int numRows,
+void IBClient::reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, bool isSmartDepth,
                            const TagValueListSPtr &mktDepthOptions) {
-    socket->reqMktDepth(tickerId, contract, numRows, mktDepthOptions);
+    socket->reqMktDepth(tickerId, contract, numRows, isSmartDepth, mktDepthOptions);
 }
 
 void IBClient::reqNewsBulletins(bool allMsgs) {
@@ -503,8 +514,8 @@ void IBClient::reqScannerParameters() {
 }
 
 void IBClient::reqScannerSubscription(int tickerId, const ScannerSubscription &subscription,
-                                      const TagValueListSPtr &scannerSubscriptionOptions) {
-    socket->reqScannerSubscription(tickerId, subscription, scannerSubscriptionOptions);
+                                      const TagValueListSPtr &scannerSubscriptionOptions, const TagValueListSPtr& scannerSubscriptionFilterOptions) {
+    socket->reqScannerSubscription(tickerId, subscription, scannerSubscriptionOptions, scannerSubscriptionFilterOptions);
 }
 
 void IBClient::requestFA(faDataType pFaDataType) {
