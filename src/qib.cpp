@@ -77,7 +77,7 @@ K LoadLibrary(K ignore)
         { "reqIds",                 dl((V*) reqIds,             1) },
         { "reqManagedAccts",        dl((V*) reqManagedAccts,    1) },
         { "reqMarketDataType",      dl((V*) reqMarketDataType,  1) },
-        { "reqMktData",             dl((V*) reqMktData,         4) },
+        { "reqMktData",             dl((V*) reqMktData,         6) },
         { "reqMktDepth",            dl((V*) reqMktDepth,        4) },
         { "reqNewsBulletins",       dl((V*) reqNewsBulletins,   1) },
         { "reqOpenOrders",          dl((V*) reqOpenOrders,      1) },
@@ -408,11 +408,12 @@ K reqMarketDataType(K marketDataType)
 
 K reqMktData(K tickerId, K contract, K genericTicks, K snapshot, K regulatorySnapshot, K mktDataOptions )
 {
-    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapshot->t != -KB || regulatorySnapshot->t != -KB || mktDataOptions->t != KD, "type");
+    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapshot->t != -KB || regulatorySnapshot->t != -KB || mktDataOptions->t != XD, "type");
     Q(!ib->isConnected(), "connection");
 
     std::string error;
     auto c = createContract(contract, error);
+
     Q(!error.empty(), error.c_str());
 
     TagValueListSPtr tag;

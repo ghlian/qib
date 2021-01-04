@@ -9,7 +9,7 @@ set(KX_VER "3")
 set(TWS_VER "9.76.01")
 set(BINARY_NAME "${PROGRAM_NAME}.${PROGRAM_VER}")
 
-option(BUILD_TWSAPI "build with the tws api" OFF) # OFF = "build with the pre-built tws api shared library"
+option(BUILD_TWSAPI "build with the tws api" ON) # OFF = "build with the pre-built tws api shared library"
 option(BUILD_x64 "build a 64-bit binary instead of 32-bit" ON)
 # option (BUILD_x64   "build a 64-bit binary instead of 32-bit"              OFF)
 option(BUILD_DEBUG "build debug versions of the binaries with symbols" ON)

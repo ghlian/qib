@@ -15,12 +15,12 @@ subscribe:{[cont]
 	if[count ?[`contract;{(=;x;enlist y)}.'flip(key;value)@\:cont;0b;()];out"Already subscribed";:];
 	`contract upsert cont:cont,enlist[`id]!enlist .ib.nextSubId;
 	upsert[;select id,sym:symbol from enlist cont] each `trade`quote;
-	.ib.reqMktData[cont`id;cont _`id;"";0b];
+	.ib.reqMktData[cont`id;cont _`id;"";0b;0b;()!()];
 	.ib.nextSubId+:1;
  };
 
 test:{
-	cont: syms 1;
+	cont: syms 0;
 		/ below is for stock
 			/ symbol  | IBM
 			/ secType | STK
