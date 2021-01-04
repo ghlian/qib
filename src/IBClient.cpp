@@ -303,9 +303,9 @@ K IBClient::convertCommissionReport(const CommissionReport &report) {
 
 K IBClient::convertTickAttrib(const TickAttrib &tickAttrib) {
     auto dict = createDictionary(std::map<std::string, K>{
-            {"canAutoExecute",  kb(tickAttrib.canAutoExecute)},
-            {"pastLimit",            kb(tickAttrib.pastLimit)},
-            {"preOpen",              kb(tickAttrib.preOpen)},
+            {"canAutoExecute", kb(tickAttrib.canAutoExecute)},
+            {"pastLimit",      kb(tickAttrib.pastLimit)},
+            {"preOpen",        kb(tickAttrib.preOpen)},
     });
     R dict;
 }
@@ -320,23 +320,33 @@ K IBClient::convertTickAttrib(const TickAttrib &tickAttrib) {
 //    R dict;
 //}
 
+K IBClient::convertDeltaNeutralContract(const DeltaNeutralContract &deltaNeutralContract) {
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"conId", kj(deltaNeutralContract.conId)},
+            {"delta", kf(deltaNeutralContract.delta)},
+            {"price", kf(deltaNeutralContract.price)}
+    });
+    R dict;
+}
+
+
 K IBClient::convertOrderState(const OrderState &orderState) {
     auto dict = createDictionary(std::map<std::string, K>{
             {"commission",    kf(orderState.commission)},
-            {"commissionCurrency",      kis(orderState.commissionCurrency)},
-            {"equityWithLoanBefore",    kip(orderState.equityWithLoanBefore)},
-            {"equityWithLoanAfter",         kip(orderState.equityWithLoanAfter)},
-            {"equityWithLoanChange",        kip(orderState.equityWithLoanChange)},
-            {"initMarginBefore",        kip(orderState.initMarginBefore)},
-            {"initMarginAfter",    kip(orderState.initMarginAfter)},
-            {"initMarginChange",   kip(orderState.initMarginChange)},
-            {"maintMarginBefore",  kip(orderState.maintMarginBefore)},
-            {"maintMarginAfter",   kip(orderState.maintMarginAfter)},
-            {"maintMarginChange",  kip(orderState.maintMarginChange)},
+            {"commissionCurrency",   kis(orderState.commissionCurrency)},
+            {"equityWithLoanBefore", kip(orderState.equityWithLoanBefore)},
+            {"equityWithLoanAfter",  kip(orderState.equityWithLoanAfter)},
+            {"equityWithLoanChange", kip(orderState.equityWithLoanChange)},
+            {"initMarginBefore",     kip(orderState.initMarginBefore)},
+            {"initMarginAfter",      kip(orderState.initMarginAfter)},
+            {"initMarginChange",     kip(orderState.initMarginChange)},
+            {"maintMarginBefore",    kip(orderState.maintMarginBefore)},
+            {"maintMarginAfter",     kip(orderState.maintMarginAfter)},
+            {"maintMarginChange",    kip(orderState.maintMarginChange)},
             {"maxCommission", kf(orderState.maxCommission)},
             {"minCommission", kf(orderState.minCommission)},
-            {"status",             kis(orderState.status)},
-            {"warningText",        kip(orderState.warningText)}
+            {"status",               kis(orderState.status)},
+            {"warningText",          kip(orderState.warningText)}
     });
     R dict;
 }
@@ -475,7 +485,8 @@ void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IB
                                  const IBString &durationStr, const IBString &barSizeSetting,
                                  const IBString &whatToShow, int useRTH, int formatDate, bool keepUpToDate,
                                  const TagValueListSPtr &chartOptions) {
-    socket->reqHistoricalData(id, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate, keepUpToDate,
+    socket->reqHistoricalData(id, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate,
+                              keepUpToDate,
                               chartOptions);
 }
 
@@ -491,9 +502,10 @@ void IBClient::reqMarketDataType(int marketDataType) {
     socket->reqMarketDataType(marketDataType);
 }
 
-void IBClient::reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot, bool regulatorySnaphsot,
+void IBClient::reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot,
+                          bool regulatorySnapshot,
                           const TagValueListSPtr &mktDataOptions) {
-    socket->reqMktData(id, contract, genericTicks, snapshot, regulatorySnaphsot, mktDataOptions);
+    socket->reqMktData(id, contract, genericTicks, snapshot, regulatorySnapshot, mktDataOptions);
 }
 
 void IBClient::reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, bool isSmartDepth,
@@ -524,8 +536,10 @@ void IBClient::reqScannerParameters() {
 }
 
 void IBClient::reqScannerSubscription(int tickerId, const ScannerSubscription &subscription,
-                                      const TagValueListSPtr &scannerSubscriptionOptions, const TagValueListSPtr& scannerSubscriptionFilterOptions) {
-    socket->reqScannerSubscription(tickerId, subscription, scannerSubscriptionOptions, scannerSubscriptionFilterOptions);
+                                      const TagValueListSPtr &scannerSubscriptionOptions,
+                                      const TagValueListSPtr &scannerSubscriptionFilterOptions) {
+    socket->reqScannerSubscription(tickerId, subscription, scannerSubscriptionOptions,
+                                   scannerSubscriptionFilterOptions);
 }
 
 void IBClient::requestFA(faDataType pFaDataType) {
@@ -560,12 +574,17 @@ void IBClient::verifyRequest(const IBString &apiName, const IBString &apiVersion
 //// Events
 /////////////////////////////////////////////
 
+void IBClient::connectAck() {
+    // TODO: implement the function
+    // receiveData("connectAck", ks("connectAck"));
+}
+
 void IBClient::currentTime(long time) {
     K qtime = kts(time);
     receiveData("currentTime", qtime);
 }
 
-void IBClient::error(const int id, const int errorCode, const IBString errorString) {
+void IBClient::error(int id, int errorCode, const std::string &errorString) {
     std::string type;
 
     if (1100 <= errorCode && errorCode <= 1300) {
@@ -599,7 +618,7 @@ void IBClient::tickPrice(TickerId tickerId, TickType field, double price, int ca
     receiveData("tickPrice", knk(4, kj(tickerId), ki(field), kf(price), kb(canAutoExecute)));
 }
 
-void IBClient::tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attrib){
+void IBClient::tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib &attrib) {
     receiveData("tickPrice", knk(4, kj(tickerId), ki(field), kf(price), convertTickAttrib(attrib)));
 }
 
@@ -649,9 +668,10 @@ void IBClient::tickEFP(TickerId tickerId, TickType tickType, double basisPoints,
     });
     receiveData("tickEFP", dict);
 }
-void IBClient::orderStatus( OrderId orderId, const std::string& status, double filled,
-	double remaining, double avgFillPrice, int permId, int parentId,
-	double lastFillPrice, int clientId, const std::string& whyHeld, double mktCapPrice){
+
+void IBClient::orderStatus(OrderId orderId, const std::string &status, double filled,
+                           double remaining, double avgFillPrice, int permId, int parentId,
+                           double lastFillPrice, int clientId, const std::string &whyHeld, double mktCapPrice) {
     auto dict = createDictionary(std::map<std::string, K>{
             {"orderId",         kj(orderId)},
             {"status",  kis(status)},
@@ -685,12 +705,12 @@ void IBClient::bondContractDetails(int reqId, const ContractDetails &contractDet
     receiveData("bondContractDetails", convertBondContractDetails(contractDetails));
 }
 
-void IBClient::updatePortfolio(const Contract &contract, int position, double marketPrice, double marketValue,
+void IBClient::updatePortfolio(const Contract &contract, double position, double marketPrice, double marketValue,
                                double averageCost, double unrealizedPNL, double realizedPNL,
                                const IBString &accountName) {
     auto dict = createDictionary(std::map<std::string, K>{
             {"contract",      convertContract(contract)},
-            {"position",      kj(position)},
+            {"position",      kf(position)},
             {"marketPrice",   kf(marketPrice)},
             {"marketValue",   kf(marketValue)},
             {"averageCost",   kf(averageCost)},
@@ -715,8 +735,9 @@ void IBClient::updateMktDepth(TickerId id, int position, int operation, int side
                                       ki(size)));
 }
 
-void IBClient::updateMktDepthL2(TickerId id, int position, IBString marketMaker, int operation, int side, double price,
-                                int size) {
+void IBClient::updateMktDepthL2(TickerId id, int position, const std::string &marketMaker, int operation, int side,
+                                double price,
+                                int size, bool isSmartDepth) {
     receiveData("updateMktDepthL2", knk(7,
                                         kj(id),
                                         kj(position),
@@ -724,7 +745,24 @@ void IBClient::updateMktDepthL2(TickerId id, int position, IBString marketMaker,
                                         ki(operation),
                                         ki(side),
                                         kf(price),
-                                        kj(size)));
+                                        kj(size),
+                                        kb(isSmartDepth)));
+}
+
+void IBClient::verifyAndAuthMessageAPI(const std::string &apiData, const std::string &xyzChallange) {
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"apiData",      kis(apiData)},
+            {"xyzChallange", kis(xyzChallange)}
+    });
+    receiveData("verifyAndAuthMessageAPI", dict);
+}
+
+void IBClient::verifyAndAuthCompleted(bool isSuccessful, const std::string &errorText) {
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"isSuccessful", kb(isSuccessful)},
+            {"errorText", kis(errorText)}
+    });
+    receiveData("verifyAndAuthCompleted", dict);
 }
 
 void IBClient::realtimeBar(TickerId reqId, long time, double open, double high, double low, double close, long volume,
@@ -743,17 +781,44 @@ void IBClient::realtimeBar(TickerId reqId, long time, double open, double high, 
     receiveData("realtimeBar", dict);
 }
 
-void IBClient::position(const IBString &account, const Contract &contract, int position, double avgCost) {
+void IBClient::pnl(int reqId, double dailyPnL, double unrealizedPnL, double realizedPnL) {
+    receiveData("pnl", knk(4,
+                           ki(reqId),
+                           kf(dailyPnL),
+                           kf(unrealizedPnL),
+                           kf(realizedPnL)));
+}
+
+void IBClient::position(const IBString &account, const Contract &contract, double position, double avgCost) {
     receiveData("position", knk(4,
                                 kis(account),
                                 convertContract(contract),
-                                kj(position),
+                                kf(position),
                                 kf(avgCost)));
 }
 
 void IBClient::positionEnd() {
     receiveData("positionEnd", identity());
 }
+
+void
+IBClient::positionMulti(int reqId, const std::string &account, const std::string &modelCode, const Contract &contract,
+                        double pos, double avgCost) {
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"reqId",    kj(reqId)},
+            {"account",   kis(account)}, // TODO: Convert
+            {"modelCode", kis(modelCode)},
+            {"contract", (convertContract(contract))},
+            {"pos",      kf(pos)},
+            {"avgCost",  kf(avgCost)}
+    });
+    receiveData("positionMulti", dict);
+}
+
+void IBClient::positionMultiEnd(int reqId) {
+    receiveData("positionMultiEnd", kj(reqId));
+}
+
 
 void IBClient::accountSummary(int reqId, const IBString &account, const IBString &tag, const IBString &value,
                               const IBString &curency) {
@@ -769,6 +834,25 @@ void IBClient::accountSummaryEnd(int reqId) {
     receiveData("accountSummaryEnd", ki(reqId));
 }
 
+void IBClient::accountUpdateMulti(int reqId, const std::string &account, const std::string &modelCode,
+                                  const std::string &key,
+                                  const std::string &value, const std::string &currency) {
+
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"reqId", kj(reqId)},
+            {"account",   kis(account)}, // TODO: Convert
+            {"modelCode", kis(modelCode)},
+            {"key",       kis(key)},
+            {"value",     kis(value)},
+            {"currency",  kis(currency)}
+    });
+    receiveData("accountUpdateMulti", dict);
+}
+
+void IBClient::accountUpdateMultiEnd(int reqId) {
+    receiveData("accountUpdateMultiEnd", knk(1, kj(reqId)));
+}
+
 void IBClient::execDetails(int reqId, const Contract &contract, const Execution &execution) {
     receiveData("execDetails", knk(3,
                                    ki(reqId),
@@ -782,6 +866,20 @@ void IBClient::execDetailsEnd(int reqId) {
 
 void IBClient::fundamentalData(TickerId reqId, const IBString &data) {
     receiveData("fundamentalData", knk(2, kj(reqId), kip(data)));
+}
+
+void IBClient::completedOrder(const Contract &contract, const Order &order, const OrderState &orderState) {
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"contract",   convertContract(contract)},
+            {"order",      convertOrder(order)},
+            {"orderState", convertOrderState(orderState)}
+    });
+    receiveData("completedOrder", dict);
+}
+
+void IBClient::completedOrdersEnd() {
+    // TODO: implement the function
+//    receiveData("completedOrdersEnd", ks("completedOrdersEnd"));
 }
 
 void IBClient::commissionReport(const CommissionReport &commissionReport) {
@@ -829,6 +927,32 @@ void IBClient::historicalData(TickerId reqId, const IBString &date, double open,
     receiveData("historicalData", dict);
 }
 
+void IBClient::historicalData(TickerId reqId, const Bar &bar) {
+
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"reqId",    kj(reqId)},
+            {"date", kip(bar.time)},
+            {"open",     kf(bar.open)},
+            {"high",     kf(bar.high)},
+            {"low",      kf(bar.low)},
+            {"close",    kf(bar.close)},
+            {"volume",   kj(bar.volume)},
+            {"barCount", ki(bar.count)},
+            {"WAP",      kf(bar.wap)}
+    });
+    receiveData("historicalData", dict);
+}
+
+void IBClient::historicalDataEnd(int reqId, const std::string &startDateStr, const std::string &endDateStr) {
+    auto dict = createDictionary(std::map<std::string, K>{
+            {"reqId", kj(reqId)},
+            {"startDateStr", kip(startDateStr)},
+            {"endDateStr",   kip(endDateStr)}
+    });
+    receiveData("historicalDataEnd", dict);
+}
+
+
 void IBClient::scannerParameters(const IBString &xml) {
     receiveData("scannerParameters", kip(xml));
 }
@@ -854,6 +978,11 @@ void IBClient::managedAccounts(const IBString &accountsList) {
 //    K dict = convertUnderComp(underComp);
 //    receiveData("deltaNeutralValidation", knk(2, ki(reqId), dict));
 //}
+
+void IBClient::deltaNeutralValidation(int reqId, const DeltaNeutralContract &deltaNeutralContract) {
+    K dict = convertDeltaNeutralContract(deltaNeutralContract);
+    receiveData("deltaNeutralValidation", knk(2, ki(reqId), dict));
+}
 
 void IBClient::scannerDataEnd(int reqId) {
     receiveData("scannerDataEnd", ki(reqId));

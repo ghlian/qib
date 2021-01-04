@@ -31,7 +31,7 @@ include_directories("${CMAKE_BINARY_DIR}/include"
         "${CMAKE_SOURCE_DIR}/third_party/kx"
         ${CMAKE_SOURCE_DIR}/third_party/ib/cppclient/client)
 
-target_link_libraries(${BINARY_NAME} "${CMAKE_SOURCE_DIR}/third_party/ib/cppclient/lib/libtwsapi.so")
+#target_link_libraries(${BINARY_NAME} "${CMAKE_SOURCE_DIR}/third_party/ib/cppclient/lib/libtwsapi.so")
 
 add_definitions(-DKXVER=3 -DIB_USE_STD_STRING)
 

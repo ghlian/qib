@@ -154,9 +154,13 @@ private:
     K convertExecution(const Execution &execution);
 
     K convertCommissionReport(const CommissionReport &report);
+
     K convertTickAttrib(const TickAttrib &tickAttrib);
+
 //    K convertUnderComp(const UnderComp &comp);
     K convertOrderState(const OrderState &orderState);
+
+    K convertDeltaNeutralContract(const DeltaNeutralContract &deltaNeutralContract);
 
 public:
     // Methods
@@ -236,7 +240,7 @@ public:
 
     // void reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot, const TagValueListSPtr& mktDataOptions);
     void reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot,
-                    bool regulatorySnaphsot,
+                    bool regulatorySnapshot,
                     const TagValueListSPtr &mktDataOptions);
 
     void reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, bool isSmartDepth,
@@ -272,6 +276,7 @@ public:
 
     void verifyRequest(const IBString &apiName, const IBString &apiVersion);
 
+
 public:
     // Events
     void accountDownloadEnd(const IBString &accountName);
@@ -281,9 +286,18 @@ public:
 
     void accountSummaryEnd(int reqId);
 
+    void accountUpdateMulti(int reqId, const std::string &account, const std::string &modelCode, const std::string &key,
+                            const std::string &value, const std::string &currency);
+
+    void accountUpdateMultiEnd(int reqId);
+
     void bondContractDetails(int reqId, const ContractDetails &contractDetails);
 
     void commissionReport(const CommissionReport &commissionReport);
+
+    void completedOrder(const Contract &contract, const Order &order, const OrderState &orderState);
+
+    void completedOrdersEnd();
 
     void connectionClosed();
 
@@ -291,14 +305,17 @@ public:
 
     void contractDetailsEnd(int reqId);
 
+    void connectAck();
+
     void currentTime(long time);
 
-//    void deltaNeutralValidation(int reqId, const UnderComp& underComp);
+    void deltaNeutralValidation(int reqId, const DeltaNeutralContract &deltaNeutralContract);
+
     void displayGroupList(int reqId, const IBString &groups);
 
     void displayGroupUpdated(int reqId, const IBString &contractInfo);
 
-    void error(const int id, const int errorCode, const IBString errorString);
+    void error(int id, int errorCode, const std::string &errorString);
 
     void execDetails(int reqId, const Contract &contract, const Execution &execution);
 
@@ -306,33 +323,67 @@ public:
 
     void fundamentalData(TickerId reqId, const IBString &data);
 
+    void familyCodes(const std::vector<FamilyCode> &familyCodes) {}; // TODO: Implement
+    void headTimestamp(int reqId, const std::string &headTimestamp) {}; // TODO: implement
+
     void
     historicalData(TickerId reqId, const IBString &date, double open, double high, double low, double close, int volume,
                    int barCount, double WAP, int hasGaps);
+
+    void historicalData(TickerId reqId, const Bar &bar);
+
+    void historicalDataEnd(int reqId, const std::string &startDateStr, const std::string &endDateStr);
+
+    void historicalNews(int requestId, const std::string &time, const std::string &providerCode,
+                        const std::string &articleId, const std::string &headline) {}; // TODO: imlement
+    void historicalNewsEnd(int requestId, bool hasMore) {}; // TODO: implement
+
+    void historicalDataUpdate(TickerId reqId, const Bar &bar) {}; // TODO: implement
+    void historicalTicks(int reqId, const std::vector<HistoricalTick> &ticks, bool done){}; // TODO: implement
+    void historicalTicksBidAsk(int reqId, const std::vector<HistoricalTickBidAsk> &ticks, bool done) {}; // TODO: implement
+    void historicalTicksLast(int reqId, const std::vector<HistoricalTickLast> &ticks, bool done){}; // TODO: implement
+    void histogramData(int reqId, const HistogramDataVector &data) {}; // TODO: implement
 
     void managedAccounts(const IBString &accountsList);
 
     void marketDataType(TickerId reqId, int marketDataType);
 
+    void mktDepthExchanges(const std::vector<DepthMktDataDescription> &depthMktDataDescriptions) {}; // TODO: implement
+    void marketRule(int marketRuleId, const std::vector<PriceIncrement> &priceIncrements) {}; // TODO: implement
+
+    void newsArticle(int requestId, int articleType, const std::string &articleText) {}; // TODO: implement
+    void newsProviders(const std::vector<NewsProvider> &newsProviders) {}; // TODO: implement
     void nextValidId(OrderId orderId);
 
+    void orderBound(long long orderId, int apiClientId, int apiOrderId) {}; // TODO: implement
     void openOrder(OrderId orderId, const Contract &, const Order &, const OrderState &);
 
     void openOrderEnd();
 
-    void orderStatus(OrderId orderId, const std::string& status, double filled,
-	double remaining, double avgFillPrice, int permId, int parentId,
-	double lastFillPrice, int clientId, const std::string& whyHeld, double mktCapPrice);
+    void orderStatus(OrderId orderId, const std::string &status, double filled,
+                     double remaining, double avgFillPrice, int permId, int parentId,
+                     double lastFillPrice, int clientId, const std::string &whyHeld, double mktCapPrice);
 
-    void position(const IBString &account, const Contract &contract, int position, double avgCost);
+    void pnl(int reqId, double dailyPnL, double unrealizedPnL, double realizedPnL);
+    void pnlSingle(int reqId, int pos, double dailyPnL, double unrealizedPnL, double realizedPnL, double value) {}; // TODO: implement
+
+    void position(const std::string &account, const Contract &contract, double position, double avgCost);
 
     void positionEnd();
+
+    void positionMulti(int reqId, const std::string &account, const std::string &modelCode, const Contract &contract,
+                       double pos, double avgCost);
+
+    void positionMultiEnd(int reqId);
 
     void
     realtimeBar(TickerId reqId, long time, double open, double high, double low, double close, long volume, double wap,
                 int count);
 
-    void receiveFA(faDataType pFaDataType, const IBString &cxml) {};
+    void receiveFA(faDataType pFaDataType, const IBString &cxml) {}; // TODO: implement
+
+    void rerouteMktDataReq(int reqId, int conid, const std::string &exchange) {}; // TODO: implement
+    void rerouteMktDepthReq(int reqId, int conid, const std::string &exchange) {}; // TODO: implement
 
     void scannerData(int reqId, int rank, const ContractDetails &contractDetails, const IBString &distance,
                      const IBString &benchmark, const IBString &projection, const IBString &legsStr) {};
@@ -341,14 +392,34 @@ public:
 
     void scannerParameters(const IBString &xml);
 
+    void securityDefinitionOptionalParameter(int reqId, const std::string &exchange, int underlyingConId,
+                                             const std::string &tradingClass,
+                                             const std::string &multiplier, const std::set<std::string> &expirations,
+                                             const std::set<double> &strikes) {};// TODO: implement
+    void securityDefinitionOptionalParameterEnd(int reqId) {};// TODO: implement
+
+    void smartComponents(int reqId, const SmartComponentsMap &theMap) {}; // TODO: implement
+    void softDollarTiers(int reqId, const std::vector<SoftDollarTier> &tiers) {}; // TODO: implement
+    void symbolSamples(int reqId, const std::vector<ContractDescription> &contractDescriptions) {};// TODO: implement
+
+    void tickByTickAllLast(int reqId, int tickType, time_t time, double price, int size, const TickAttribLast& tickAttribLast, const std::string& exchange, const std::string& specialConditions) {};// TODO: implement
+    void tickByTickBidAsk(int reqId, time_t time, double bidPrice, double askPrice, int bidSize, int askSize,
+                          const TickAttribBidAsk &tickAttribBidAsk) {};// TODO: implement
+    void tickByTickMidPoint(int reqId, time_t time, double midPoint) {}; // TODO: implement
     void tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const IBString &formattedBasisPoints,
                  double totalDividends, int holdDays, const IBString &futureExpiry, double dividendImpact,
                  double dividendsToExpiry);
+
+    void tickNews(int tickerId, time_t timeStamp, const std::string &providerCode, const std::string &articleId,
+                  const std::string &headline, const std::string &extraData) {}; // TODO: implement
 
     void tickGeneric(TickerId tickerId, TickType tickType, double value);
 
     void tickOptionComputation(TickerId tickerId, TickType tickType, double impliedVol, double delta, double optPrice,
                                double pvDividend, double gamma, double vega, double theta, double undPrice);
+
+    void tickReqParams(int tickerId, double minTick, const std::string &bboExchange,
+                       int snapshotPermissions) {}; // TODO: implement
 
     void tickSize(TickerId tickerId, TickType field, int size);
 
@@ -364,22 +435,31 @@ public:
     void updateMktDepth(TickerId id, int position, int operation, int side, double price, int size);
 
     void
-    updateMktDepthL2(TickerId id, int position, IBString marketMaker, int operation, int side, double price, int size);
+    updateMktDepthL2(TickerId id, int position, const std::string &marketMaker, int operation, int side, double price,
+                     int size,
+                     bool isSmartDepth);
 
     void updateNewsBulletin(int msgId, int msgType, const IBString &newsMessage, const IBString &originExch);
 
-    void
-    updatePortfolio(const Contract &contract, int position, double marketPrice, double marketValue, double averageCost,
-                    double unrealizedPNL, double realizedPNL, const IBString &accountName);
+//    void updatePortfolio(const Contract &contract, int position, double marketPrice, double marketValue, double averageCost,
+//                    double unrealizedPNL, double realizedPNL, const IBString &accountName);
+    void updatePortfolio(const Contract &contract, double position, double marketPrice, double marketValue,
+                         double averageCost,
+                         double unrealizedPNL, double realizedPNL, const std::string &accountName);
 
     void verifyCompleted(bool isSuccessful, const IBString &errorText);
 
     void verifyMessageAPI(const IBString &apiData);
 
+    void verifyAndAuthMessageAPI(const std::string &apiData, const std::string &xyzChallange);
+
+    void verifyAndAuthCompleted(bool isSuccessful, const std::string &errorText);
+
     void winError(const IBString &str, int lastError);
 
     void tickPrice(TickerId tickerId, TickType field, double price, int canAutoExecute);
-    virtual void tickPrice( TickerId tickerId, TickType field, double price, const TickAttrib& attrib) ;
+
+    virtual void tickPrice(TickerId tickerId, TickType field, double price, const TickAttrib &attrib);
 
 
 //public:

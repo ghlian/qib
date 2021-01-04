@@ -2,7 +2,7 @@ out:{-1 string[.z.Z]," ",x;}
 zu:{"z"$-10957+x%8.64e4} / kdb+ datetime from unix
 format:{ssr[ssr[;"\"";""] .j.j x;",";", "]}
 
-.ib:(`:bin/qib.0.0.1 2:(`LoadLibrary;1))`
+.ib:(`:bin/qib.0.0.2 2:(`LoadLibrary;1))`
 .ib.onrecv:{[fname;args] value (enlist $[null func:.ib.callbacks[fname];.ib.unknown;func]),$[type[args] in 10 98 99h;enlist;::] args};
 .ib.callbacks:()!()
 .ib.unknown:{[fname;args] out" unknown function ",(string fname),", args: ";0N!args}

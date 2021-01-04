@@ -88,7 +88,7 @@ K LoadLibrary(K ignore)
         { "requestFA",              dl((V*) requestFA,          1) },
         { "serverVersion",          dl((V*) serverVersion,      1) },
         { "setServerLogLevel",      dl((V*) setServerLogLevel,  1) },
-        { "subscribeToGroupEvents", dl((V*) subscribeToGroupEvents, 2) },
+//        { "subscribeToGroupEvents", dl((V*) subscribeToGroupEvents, 2) },
         { "TwsConnectionTime",      dl((V*) TwsConnectionTime,  1) },
         { "unsubscribeFromGroupEvents", dl((V*) unsubscribeFromGroupEvents, 1) },
         { "updateDisplayGroup",     dl((V*) updateDisplayGroup, 2) },
@@ -111,13 +111,13 @@ K eventLoop(I fd)
 K connect_(K host, K port, K clientId)
 {
     Q(host->t != -KS || port->t != -KJ || clientId->t != -KJ, "type");
-    
+
     if (!ib->isConnected()) {
         ib->connect(host->s, port->j, clientId->j);
         if (ib->isConnected())
             sd1(ib->fd(), eventLoop);
     }
-    
+
     R kb(ib->isConnected());
 }
 
@@ -238,18 +238,18 @@ K exerciseOptions(K tickerId, K contract, K exerciseAction, K exerciseQuantity, 
 {
     Q(tickerId->t != -KJ || contract->t != XD || exerciseAction->t != -KJ ||
       exerciseQuantity->t != -KJ || account->t != -KS || override->t != -KB, "type");
-    
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
+
     ib->exerciseOptions(tickerId->j,
                         c,
                         exerciseAction->j,
                         exerciseQuantity->j,
                         account->s,
                         static_cast<I>(override->g));
-    
+
     R (K)0;
 }
 
@@ -257,14 +257,14 @@ K placeOrder(K id, K contract, K order)
 {
     Q(id->t != -KJ || contract->t != XD || order->t != XD, "type");
     Q(!ib->isConnected(), "connection");
-    
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
+
     auto o = createOrder(order, error);
     Q(!error.empty(), error.c_str());
-    
+
     ib->placeOrder(id->j, c, o);
     R (K)0;
 }
@@ -280,11 +280,11 @@ K replaceFA(K pFaDataType, K cxml)
 {
     Q(pFaDataType->t != -KJ || cxml->t != KC, "type");
     Q(pFaDataType->j < 1 || pFaDataType->j > 3, "pFaDataType");
-    
+
 //    auto datatype = static_cast<faDataType>(pFaDataType->j);
 //    auto xml = static_cast<IBString>(cxml->g);
 //    ib->replaceFA(datatype, xml);
-    
+
     R krr((S)"nyi");
 }
 
@@ -318,11 +318,11 @@ K reqAutoOpenOrders(K bAutoBind)
 K reqContractDetails(K reqId, K contract)
 {
     Q(reqId->t != -KJ || contract->t != XD, "type");
-    
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
+
     ib->reqContractDetails(reqId->j, c);
     R (K)0;
 }
@@ -336,11 +336,11 @@ K reqCurrentTime(K ignore)
 K reqExecutions(K reqId, K filter)
 {
     Q(reqId->t != -KJ || filter->t != XD, "type");
-    
+
     std::string error;
     auto ef = createExecutionFilter(filter, error);
     Q(!error.empty(), error.c_str());
-    
+
     ib->reqExecutions(reqId->j, ef);
     R (K)0;
 }
@@ -348,11 +348,11 @@ K reqExecutions(K reqId, K filter)
 K reqFundamentalData(K reqId, K contract, K reportType)
 {
     Q(reqId->t != -KJ || contract->t != XD || reportType->t != -KS, "type");
-    
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
+
     ib->reqFundamentalData(reqId->j, c, reportType->s);
     R (K)0;
 }
@@ -363,16 +363,16 @@ K reqGlobalCancel(K ignore)
     R (K)0;
 }
 
-K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH, K keepUpToDate)
+
+K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH, K formatDate, K keepUpToDate, K chartOptions)
 {
     Q(id->t != -KJ || contract->t != XD || endDateTime->t != -KZ || durationStr->t != KC || barSizeSetting->t != KC ||
-      whatToShow->t != KC || useRTH->t != -KB || keepUpToDate->t != -KB, "type");
-    
+      whatToShow->t != KC || useRTH->t != -KB || formatDate->t != -KI ||  keepUpToDate->t != -KB || chartOptions->t != XD, "type");
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
-    TagValueListSPtr chartOptions;
+    auto cpp_chartOptions = createTagValueList(chartOptions, error);
     ib->reqHistoricalData(id->j,
                           c,
                           formatTime("%Y%m%d %H:%M:%S", ((endDateTime->f) + 10957)*8.64e4, 0),
@@ -382,7 +382,7 @@ K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSet
                           static_cast<I>(useRTH->g),
                           2,
                           (useRTH->g),
-                          chartOptions);
+                          cpp_chartOptions);
     R (K)0;
 }
 
@@ -406,34 +406,34 @@ K reqMarketDataType(K marketDataType)
     R (K)0;
 }
 
-K reqMktData(K tickerId, K contract, K genericTicks, K snapshot, K regulatorySnapshot )
+K reqMktData(K tickerId, K contract, K genericTicks, K snapshot, K regulatorySnapshot, K mktDataOptions )
 {
-    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapshot->t != -KB || regulatorySnapshot->t != -KB, "type");
+    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapshot->t != -KB || regulatorySnapshot->t != -KB || mktDataOptions->t != KD, "type");
     Q(!ib->isConnected(), "connection");
-    
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
+
     TagValueListSPtr tag;
 
     std::cout<<"Running the reqMktData in qib. "<< std::endl;
     ib->reqMktData(tickerId->j, c, "", static_cast<I>(snapshot->g), static_cast<I>(regulatorySnapshot->g),  tag);
-    
+
     R (K)0;
 }
 
 K reqMktDepth(K tickerId, K contract, K numRows, K isSmartDepth, K mktDepthOptions)
 {
     Q(tickerId->t != -KJ || contract->t != XD || numRows->t != -KJ || isSmartDepth->t != -KB || mktDepthOptions->t != XD, "type");
-    
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
+
     auto tvl = createTagValueList(mktDepthOptions, error);
     Q(!error.empty(), error.c_str());
-    
+
     ib->reqMktDepth(tickerId->j, c, numRows->j, static_cast<I>(isSmartDepth->g), tvl);
     R (K)0;
 }
@@ -461,21 +461,21 @@ K reqRealTimeBars(K id, K contract, K barSize, K whatToShow, K useRTH, K realTim
 {
     Q(id->t != -KJ || contract->t != XD || barSize->t != -KJ || whatToShow->t != -KS ||
       useRTH->t != -KB || realTimeBarsOptions->t != XD, "type");
-    
+
     std::string error;
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
-    
+
     auto tvl = createTagValueList(realTimeBarsOptions, error);
     Q(!error.empty(), error.c_str());
-    
+
     ib->reqRealTimeBars(id->j,
                         c,
                         barSize->j,
                         whatToShow->s,
                         static_cast<I>(useRTH->g),
                         tvl);
-    
+
     R (K)0;
 }
 
@@ -488,11 +488,11 @@ K reqScannerParameters(K ignore)
 K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOptions, K scannerSubscriptionFilterOptions)
 {
     Q(tickerId->t != -KJ || subscription->t != XD || scannerSubscriptionOptions->t != XD || scannerSubscriptionFilterOptions->t != XD, "type");
-    
+
     std::string error;
     auto ss = createScannerSubscription(subscription, error);
     Q(!error.empty(), error.c_str());
-    
+
     auto tvl = createTagValueList(scannerSubscriptionOptions, error);
     Q(!error.empty(), error.c_str());
 
@@ -507,7 +507,7 @@ K requestFA(K pFaDataType)
 {
     Q(pFaDataType->t != -KS, "type");
     Q(pFaDataType->j < 1 || pFaDataType->j > 3, "unknown faDataType");
-    
+
     ib->requestFA(static_cast<faDataType>(pFaDataType->j));
     R (K)0;
 }
@@ -524,12 +524,12 @@ K setServerLogLevel(K level)
     R (K)0;
 }
 
-K subscribeToGroupEvents(K reqId, K groupId)
-{
-    Q(reqId->t != -KJ || groupId->t != -KJ, "type");
-    ib->subscribeToGroupEvents(reqId->j, groupId->j);
-    R (K)0;
-}
+//K subscribeToGroupEvents(K reqId, K groupId)
+//{
+//    Q(reqId->t != -KJ || groupId->t != -KJ, "type");
+//    ib->subscribeToGroupEvents(reqId->j, groupId->j);
+//    R (K)0;
+//}
 
 K TwsConnectionTime(K ignore)
 {
@@ -652,7 +652,7 @@ V setProperty(T &property, I expectedType, K x, I index, std::string &error)
         error = stringFormat("Invalid type: %i. Expected %i", xt0, expectedType);
         R;
     }
-    
+
     if (xt < 0) setAtom(property, x, expectedType, error);
     else if ((0 <= xt) && (xt < 20)) setList(property, expectedType, x, index, error);
     else {
@@ -665,16 +665,16 @@ V setProperties(K dict, std::map<std::string, std::function<V(K x, I i, std::str
 {
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
-    
+
     if (keys->t != KS) {
         error = "Keys must be syms";
         R;
     }
-    
+
     std::string key;
     for (I i = 0; i < keys->n; i++) {
         key = kS(keys)[i];
-        
+
         auto it = props.find(key);
         if (it != props.end()) {
             (it->second)(vals, i, error);
@@ -814,7 +814,7 @@ Z ScannerSubscription createScannerSubscription(K dict, std::string &error)
         { "excludeConvertible",     partial(f, &ss.excludeConvertible,  -KB) },
         { "scannerSettingPairs",    partial(f, &ss.scannerSettingPairs,  KC) },
         { "stockTypeFilter",        partial(f, &ss.stockTypeFilter,      KC) }
-        
+
     };
     setProperties(dict, *map, error);
     if (!error.empty()) error = "createScannerSubscription: " + error;
@@ -828,23 +828,23 @@ Z TagValueListSPtr createTagValueList(K dict, std::string &error)
         error = "type";
         R list;
     }
-    
+
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
-    
+
     if (keys->n > 0 && keys->t != KS) {
         error = "Keys must be syms";
         R list;
     }
-    
+
     for (I i = 0; i < keys->n; i++) {
         TagValueSPtr tagValue(new TagValue());
         tagValue->tag = kS(keys)[i];
         partial(f, &tagValue->value, KC)(vals, i, error);
-        
+
         if (!error.empty()) R list;
         list->push_back(tagValue);
     }
-    
+
     R list;
 }
