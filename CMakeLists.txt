@@ -9,6 +9,7 @@ set(KX_VER "3")
 set(TWS_VER "9.76.01")
 set(BINARY_NAME "${PROGRAM_NAME}.${PROGRAM_VER}")
 
+option(BUILD_TWSAPI "build with the tws api" OFF) # OFF = "build with the pre-built tws api shared library"
 option(BUILD_x64 "build a 64-bit binary instead of 32-bit" ON)
 # option (BUILD_x64   "build a 64-bit binary instead of 32-bit"              OFF)
 option(BUILD_DEBUG "build debug versions of the binaries with symbols" ON)
@@ -20,18 +21,16 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 file(GLOB_RECURSE QIB_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
-add_library(${BINARY_NAME} SHARED ${QIB_SRC})
-
-#include_directories ("${CMAKE_BINARY_DIR}/include"
-#	"${CMAKE_SOURCE_DIR}/third_party/kx"
-#	"${CMAKE_SOURCE_DIR}/third_party/ib/IBJts/source/PosixClient/Shared"
-#	"${CMAKE_SOURCE_DIR}/third_party/ib/IBJts/source/PosixClient/src")
-
+if (${BUILD_TWSAPI})
+        AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/third_party/ib/cppclient/client  TWSAPI_SRC_DIR )
+        add_library(${BINARY_NAME} SHARED ${QIB_SRC} ${TWSAPI_SRC_DIR})
+    else()
+        add_library(${BINARY_NAME} SHARED ${QIB_SRC})
+        target_link_libraries(${BINARY_NAME} "${CMAKE_SOURCE_DIR}/third_party/ib/cppclient/lib/libtwsapi.so")
+endif()
 include_directories("${CMAKE_BINARY_DIR}/include"
         "${CMAKE_SOURCE_DIR}/third_party/kx"
         ${CMAKE_SOURCE_DIR}/third_party/ib/cppclient/client)
-
-#target_link_libraries(${BINARY_NAME} "${CMAKE_SOURCE_DIR}/third_party/ib/cppclient/lib/libtwsapi.so")
 
 add_definitions(-DKXVER=3 -DIB_USE_STD_STRING)
 
