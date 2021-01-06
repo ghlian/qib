@@ -5,7 +5,7 @@ system"l ",string[qib`appdir],"/ib.q"
 out"Connecting"
 // 4002 is the ibGateWay paper trading port
 // 4001 is the ibGateWay live trading port
-.ib.connect[`$"127.0.0.1";4001;1];  
+.ib.connect[`$"127.0.0.2";4001;1];  
 $[.ib.isConnected[]; out"Connected"; [out"Connection failed";exit 1]]
 
 .ib.nextSubId:1
