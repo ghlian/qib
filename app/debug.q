@@ -13,11 +13,18 @@ $[.ib.isConnected[]; out"Connected"; [out"Connection failed";exit 1]]
 subscribe:{[cont]
 	out"Subscribing to ",format cont;
 	if[count ?[`contract;{(=;x;enlist y)}.'flip(key;value)@\:cont;0b;()];out"Already subscribed";:];
-	`contract upsert cont:cont,enlist[`id]!enlist .ib.nextSubId;
-	upsert[;select id,sym:symbol from enlist cont] each `trade`quote;
+
+	/ `contract upsert cont:cont,enlist[`id]!enlist .ib.nextSubId;
+	cont:cont,enlist[`id]!enlist .ib.nextSubId;
+	`contract upsert (`id`symbol`secType`exchange`currency)!(cont)[`id`symbol`secType`exchange`currency];
+	/ upsert[;select id,sym:symbol from enlist cont] each `trade`quote;
+	upsert[;select id,sym:`418042906 from enlist cont] each `trade`quote;
 	.ib.reqMktData[cont`id;cont _`id;"";0b];
 	.ib.nextSubId+:1;
  };
+
+/ id| symbol secType exchange currency
+/ `contract upsert cont:
 
 test:{
 	cont: syms 1;
@@ -26,14 +33,14 @@ test:{
 			/ secType | STK
 			/ exchange| SMART
 			/ currency| USD
-
 		/ VIX-20200722-USD-FUT
 		vixCon: `symbol`secType`exchange`currency`expiry!`VIX`FUT`CFE`USD,"i"$20210317;
-		vixCon: `symbol`secType`exchange`currency`expiry`tradingClass!`VIX`FUT`CFE`USD, (`month$ 2021.01.20), `VX
-		cont: vixCon
-	.ib.version[]
-	.ib.LoadLibrary[]
- 
+		vixCon: `symbol`secType`exchange`currency`expiry`tradingClass!`VIX`FUT`CFE`USD, (`month$ 2021.01.20), `VX;
+		cont: vixCon;
+	.ib.version[];
+	.ib.LoadLibrary[];
+
+	system "pwd"
  }
 
 
@@ -54,13 +61,34 @@ reqHistoricalData:{
 	tickerId:1;
 	contract:`symbol`secType`exchange`currency!(`IBM;`STK;`SMART;`USD);
 	endDateTime:"z"$2020.12.01;
-	durationStr:"10 D";
-	barSizeSetting:"1 day";
+	durationStr:"2 D";
+	/ barSizeSetting:"1 day";
+	barSizeSetting:"1 min";
 	whatToShow:"MIDPOINT";
 	useRTH:1b;
 	.ib.reqHistoricalData[tickerId;contract;endDateTime;durationStr;barSizeSetting;whatToShow;useRTH];
  };
 
+
+// vixCon: `symbol`secType`exchange`currency`expiry`tradingClass!`VIX`FUT`CFE`USD, (`month$ 2021.01.20), `VX
+
+reqHistoricalData:{[con]
+	// void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString &barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr &chartOptions)
+	tickerId:200;
+	contract:`symbol`secType`exchange`currency!(`IBM;`STK;`SMART;`USD);
+	/ contract: vixCon;
+	endDateTime:"z"$2021.01.08;
+	durationStr:"2 D";
+	/ barSizeSetting:"1 day";
+	barSizeSetting:"1 min";
+	whatToShow:"MIDPOINT";
+	whatToShow: "TRADES";
+	useRTH:0b;
+	.ib.reqHistoricalData[tickerId;contract;endDateTime;durationStr;barSizeSetting;whatToShow;useRTH];
+ };
+
+
+/ reqHistoricalData[]
 start:{
 	serverVersion[];
 	currentTime[];
@@ -68,7 +96,7 @@ start:{
 	/ reqMktData[];
 	/ reqAccountUpdates[];
 	/ reqPositions[];
-	// reqExecutions[];
+	/ reqExecutions[];
 	reqHistoricalData[];
 	/ reqAllOpenOrders[];
 	/ reqContractDetails[];
@@ -96,6 +124,7 @@ lmtOrder:`action`totalQuantity`orderType`lmtPrice!(`BUY;1000;`LMT;0.01)
 mktOrder:`action`totalQuantity`orderType!(`BUY;1000;`MKT)
 
 .ib.placeOrder[1^.ib.nextId;first contract] lmtOrder
+.ib.cancelOrder .ib.nextId
 .ib.reqMktData[4;cont _`conId;"";0b];
 
 
@@ -108,3 +137,4 @@ reqPositions[]
 reqAllOpenOrders[]
 reqContractDetails[]
 reqHistoricalData[]
+.ib.cancelMktData each 1+til 14

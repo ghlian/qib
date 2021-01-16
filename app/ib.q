@@ -1,3 +1,11 @@
+// ************************************************
+// utility
+system "l /home/ghlian/CODE_LIAN/code_kdb/utility_handle_connection.q"
+// ************************************************
+
+
+// **************************************************
+
 out:{-1 string[.z.Z]," ",x;}
 zu:{"z"$-10957+x%8.64e4} / kdb+ datetime from unix
 format:{ssr[ssr[;"\"";""] .j.j x;",";", "]}
@@ -13,22 +21,44 @@ contract:1!flip`id`symbol`secType`exchange`currency!"issss"$\:()
 quote:1!flip`id`sym`time`bid`ask`bidsize`asksize`autoexe!"ispffjjb"$\:()
 trade:1!flip`id`sym`time`price`size`autoexe!"ispfjb"$\:()
 
+quote_db: `time`sym`bid`ask`bidsize`asksize`autoexe;
+trade_db: `time`sym`price`size`autoexe;
+
+// **************************************************
+
+// **************************************************
+/ system "c 1000 1000";
+.dict_handle: ((`handle.tp`handle.rdb`handle.hdb)! (`$":localhost:8000:rdb:pass";`$":localhost:8002:rdb:pass"; `$":localhost:8003:rdb:pass"))
+// call the publish function
+
+.ib.publish:{[tableName; data]
+	.handle.hvinc[ `handle.tp; 3000; .dict_handle];
+	handle.tp(".u.upd";tableName; data );
+ }
+
+
+// **************************************************
+
 i:`quote`trade!0 0
 .ib.nextId:0Nj
 .ib.ready:0b
 
 sym:{contract[x;`symbol]}
 
-updtick:{[tbl;col;val;dict] tbl upsert (enlist[col]!enlist val),dict; i[tbl]+:1;};
+updtick:{[tbl;col;val;dict]	
+	tbl upsert (enlist[col]!enlist val),dict; i[tbl]+:1; 
+	if[tbl~`quote;   .ib.publish[`ib_quote; ] quote[dict`id; quote_db] ];
+	if[tbl~`trade;  .ib.publish[`ib_market_trade; ] trade[dict`id; trade_db]   ];
+ };
 
 / https://interactivebrokers.github.io/tws-api/tick_types.html
 tick:()!()
-tick[0]:updtick[`quote;`bidsize]
-tick[1]:updtick[`quote;`bid]
-tick[2]:updtick[`quote;`ask]
-tick[3]:updtick[`quote;`asksize]
-tick[4]:updtick[`trade;`price]
-tick[5]:updtick[`trade;`size]
+tick[0]:updtick[`quote;`bidsize];
+tick[1]:updtick[`quote;`bid];
+tick[2]:updtick[`quote;`ask];
+tick[3]:updtick[`quote;`asksize];
+tick[4]:updtick[`trade;`price];
+tick[5]:updtick[`trade;`size];
 tick[6]:{[val;dict] out string[sym dict`id]," high = ",string val}
 tick[7]:{[val;dict] out string[sym dict`id]," low = ",string val}
 tick[8]:{[val;dict] out string[sym dict`id]," volume = ",string 100*val}
