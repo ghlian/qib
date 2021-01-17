@@ -13,18 +13,11 @@ $[.ib.isConnected[]; out"Connected"; [out"Connection failed";exit 1]]
 subscribe:{[cont]
 	out"Subscribing to ",format cont;
 	if[count ?[`contract;{(=;x;enlist y)}.'flip(key;value)@\:cont;0b;()];out"Already subscribed";:];
-
-	/ `contract upsert cont:cont,enlist[`id]!enlist .ib.nextSubId;
-	cont:cont,enlist[`id]!enlist .ib.nextSubId;
-	`contract upsert (`id`symbol`secType`exchange`currency)!(cont)[`id`symbol`secType`exchange`currency];
-	/ upsert[;select id,sym:symbol from enlist cont] each `trade`quote;
-	upsert[;select id,sym:`418042906 from enlist cont] each `trade`quote;
+	`contract upsert cont:cont,enlist[`id]!enlist .ib.nextSubId;
+	upsert[;select id,sym:symbol from enlist cont] each `trade`quote;
 	.ib.reqMktData[cont`id;cont _`id;"";0b];
 	.ib.nextSubId+:1;
  };
-
-/ id| symbol secType exchange currency
-/ `contract upsert cont:
 
 test:{
 	cont: syms 1;
@@ -35,12 +28,11 @@ test:{
 			/ currency| USD
 		/ VIX-20200722-USD-FUT
 		vixCon: `symbol`secType`exchange`currency`expiry!`VIX`FUT`CFE`USD,"i"$20210317;
-		vixCon: `symbol`secType`exchange`currency`expiry`tradingClass!`VIX`FUT`CFE`USD, (`month$ 2021.01.20), `VX;
-		cont: vixCon;
-	.ib.version[];
-	.ib.LoadLibrary[];
+		vixCon: `symbol`secType`exchange`currency`expiry`tradingClass!`VIX`FUT`CFE`USD, (`month$ 2021.01.20), `VX
+		cont: vixCon
+	.ib.version[]
+	.ib.LoadLibrary[]
 
-	system "pwd"
  }
 
 
@@ -61,9 +53,8 @@ reqHistoricalData:{
 	tickerId:1;
 	contract:`symbol`secType`exchange`currency!(`IBM;`STK;`SMART;`USD);
 	endDateTime:"z"$2020.12.01;
-	durationStr:"2 D";
-	/ barSizeSetting:"1 day";
-	barSizeSetting:"1 min";
+	durationStr:"10 D";
+	barSizeSetting:"1 day";
 	whatToShow:"MIDPOINT";
 	useRTH:1b;
 	.ib.reqHistoricalData[tickerId;contract;endDateTime;durationStr;barSizeSetting;whatToShow;useRTH];
