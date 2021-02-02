@@ -2,15 +2,14 @@
 // utility
 system "l /home/ghlian/CODE_LIAN/code_kdb/utility_handle_connection.q"
 // ************************************************
-
-
 // **************************************************
 
 out:{-1 string[.z.Z]," ",x;}
 zu:{"z"$-10957+x%8.64e4} / kdb+ datetime from unix
 format:{ssr[ssr[;"\"";""] .j.j x;",";", "]}
 
-.ib:(`:bin/qib.0.0.1 2:(`LoadLibrary;1))`
+HOME: getenv[`HOME];
+.ib:((hsym`$HOME,"/CODE_LIAN/QuantTrading/IBTrading/algoTrader/qib/bin/qib.0.0.1") 2:(`LoadLibrary;1))`
 .ib.onrecv:{[fname;args] value (enlist $[null func:.ib.callbacks[fname];.ib.unknown;func]),$[type[args] in 10 98 99h;enlist;::] args};
 .ib.callbacks:()!()
 .ib.unknown:{[fname;args] out" unknown function ",(string fname),", args: ";0N!args}
@@ -20,6 +19,9 @@ format:{ssr[ssr[;"\"";""] .j.j x;",";", "]}
 contract:1!flip`id`symbol`secType`exchange`currency!"issss"$\:()
 quote:1!flip`id`sym`time`bid`ask`bidsize`asksize`autoexe!"ispffjjb"$\:()
 trade:1!flip`id`sym`time`price`size`autoexe!"ispfjb"$\:()
+
+trade_2:1!flip`id`sym`time`price`size`volume`autoexe!"ispfjjb"$\:()
+trade_2: trade lj trade_2
 
 quote_db: `time`sym`bid`ask`bidsize`asksize`autoexe;
 trade_db: `time`sym`price`size`autoexe;
@@ -62,6 +64,8 @@ tick[5]:updtick[`trade;`size];
 tick[6]:{[val;dict] out string[sym dict`id]," high = ",string val}
 tick[7]:{[val;dict] out string[sym dict`id]," low = ",string val}
 tick[8]:{[val;dict] out string[sym dict`id]," volume = ",string 100*val}
+tick[8]:updtick[`trade_2;`volume]
+
 tick[9]:{[val;dict] out string[sym dict`id]," close = ",string val}
 tick[45]:{[str;dict] updtick[`trade;`time;;dict] "p"$zu "J"$str} 			/ last timestamp
 tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
@@ -156,7 +160,7 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 
 .ib.reg[`execDetails] {[reqId;contract;execution]
 	out"execDetails:";
-	/ -1 format `reqId`contract`execution!(reqId;contract;execution);
+	-1 format `reqId`contract`execution!(reqId;contract;execution);
  };
 
 .ib.reg[`execDetailsEnd] {[reqId]
@@ -222,6 +226,10 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 
 .ib.reg[`contractDetailsEnd] {[reqId]
 	out"contractDetailsEnd"
+ };
+
+.ib.reg[`commissionReport] {[reqId]
+	out"commissionReport"
  };
 
 .ib.reg[`verifyMessageAPI] {[apiData]

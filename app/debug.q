@@ -39,7 +39,9 @@ test:{
 syms:("SSSS";enlist csv)0:.Q.dd[hsym qib`appdir;`syms.csv]
 
 serverVersion:{out"Server version: ",string .ib.serverVersion[]};
-currentTime:{out"Requesting current time";.ib.reqCurrentTime[]};
+currentTime:{out"Requesting current time: ", string .z.P;.ib.reqCurrentTime[]};
+currentTime[]
+
 TwsConnectionTime:{out"TWS connection time: ",.ib.TwsConnectionTime[]}
 reqMktData:{out"Requesting mkt data"; subscribe each syms;}
 reqAccountUpdates:{out"Requesting account updates";.ib.reqAccountUpdates[1b;first .ib.managedAccounts];}
@@ -101,6 +103,11 @@ started:0b
  };
 
 \
+
+\a
+
+-10#ib_quote
+
 reqManagedAccts[];
 .ib.onrecv:{[fname;args] show (fname;args)};
 \c 50 500
